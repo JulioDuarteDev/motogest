@@ -1,10 +1,16 @@
+import { HeaderPublico } from "@/components/HeaderPublico";
+import { MotosDisponiveis } from "@/pages/MotosDisponiveis";
 function App() {
 
-  return (
-    <>
-      <p>Hello world!</p>
-    </>
-  )
+  // TODO: ajustar visual header
+  // TODO: ajustar visual card moto disponivel
+
+	return (
+		<>
+			<HeaderPublico />
+			<MotosDisponiveis />
+		</>
+	);
 }
 
-export default App
+export default App;
