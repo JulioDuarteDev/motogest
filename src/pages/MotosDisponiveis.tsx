@@ -1,6 +1,4 @@
 import { CardMotoDisponivel } from "@/components/CardMotoDisponivel";
-import { Separator } from "@/components/ui/separator";
-
 
 const imageMap = {
 	"NXR160 BROS ESDD": {
@@ -70,13 +68,11 @@ export function MotosDisponiveis() {
 	];
 
 	return (
-		<>
-			<header className="flex flex-col center gap-1">
-				<h2 className="h2">Motos disponíveis</h2>
-				<p>Exibindo {motos.length} motos disponíveis</p>
+		<div className="p-4 flex flex-col gap-2">
+			<header className="flex flex-col center gap-1 ">
+				<h2 className="text-lg font-semibold">Motos disponíveis</h2>
+				<p className="text-slate-500">Exibindo {motos.length} motos disponíveis</p>
 			</header>
-
-			<Separator />
 
 			<div className="flex gap-5 flex-wrap center">
 				{motos.map((moto, index) => (
@@ -93,6 +89,6 @@ export function MotosDisponiveis() {
 				))}
 			</div>
 			<ul></ul>
-		</>
+		</div>
 	);
 }

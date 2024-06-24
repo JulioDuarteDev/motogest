@@ -1,4 +1,4 @@
-import FallbackImage from "@/assets/fallback_moto.jpg";
+import FallbackImage from "@/assets/img/fallback_moto.jpg";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Dialog,
@@ -9,6 +9,8 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button.tsx";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWhatsapp } from '@fortawesome/free-brands-svg-icons'
 
 interface CardMotoDisponivelProps {
 	ano: number;
@@ -39,7 +41,7 @@ export function CardMotoDisponivel({
 								alt={"Imagem de " + modelo}
 								src={url_imagem || FallbackImage}
 							></img>
-							<CardTitle>
+							<CardTitle className="text-base">
 								{modelo} ({ano})
 							</CardTitle>
 						</CardHeader>
@@ -54,17 +56,17 @@ export function CardMotoDisponivel({
 							alt={"Imagem de " + modelo}
 							src={url_imagem || FallbackImage}
 						></img>
-						<DialogTitle>{modelo}</DialogTitle>
+						<DialogTitle className="text-center">{modelo}</DialogTitle>
 					</DialogHeader>
 					<ul>
-						<li>Ano: {ano}</li>
-						<li>Marca: {marca}</li>
-						<li>Cilindrada: {cilindrada}</li>
-						<li>Cor: {cor}</li>
-						<li>Quilometragem: {quilometragem}</li>
+						<li><span className="font-bold">Ano: </span>{ano}</li>
+						<li><span className="font-bold">Marca:  </span>{marca}</li>
+						<li><span className="font-bold">Cilindrada: </span>{cilindrada}</li>
+						<li><span className="font-bold">Cor: </span>{cor}</li>
+						<li><span className="font-bold">Quilometragem: </span>{quilometragem}</li>
 					</ul>
-					<DialogFooter>
-						<Button>Entrar em contato</Button>
+					<DialogFooter className="sm:justify-center">
+						<Button className="w-full"> <FontAwesomeIcon size="xl" icon={faWhatsapp} className="pr-2"/> Entrar em contato</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
