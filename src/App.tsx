@@ -11,6 +11,7 @@ import { MotoDetalhes } from "./pages/moto/MotoDetalhes";
 import { MotoListagem } from "./pages/moto/MotoListagem";
 import { ModeloListagem } from "./pages/modelo/ModeloListagem";
 import { ModeloDetalhes } from "./pages/modelo/ModeloDetalhes";
+import { Toaster } from "@/components/ui/toaster"
 function App() {
 
   // TODO: ajustar visual header
@@ -54,6 +55,7 @@ function App() {
 	return (
 		<>
 			<RouterProvider router={router} />
+			<Toaster />
 		</>
 
 	);
