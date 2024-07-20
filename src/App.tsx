@@ -5,7 +5,7 @@ import { Error404 } from "./pages/Error404";
 import { MotoCadastro } from "./pages/moto/MotoCadastro";
 import { ModeloCadastro } from "./pages/modelo/ModeloCadastro";
 import { HeaderPrivado } from "./components/HeaderPrivado";
-import { Login } from "./pages/Login";
+import { Login } from "./pages/autenticacao/Login";
 import { GestaoIndex } from "./pages/GestaoIndex";
 import { MotoDetalhes } from "./pages/moto/MotoDetalhes";
 import { MotoListagem } from "./pages/moto/MotoListagem";
