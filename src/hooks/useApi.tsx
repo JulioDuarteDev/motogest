@@ -16,9 +16,14 @@ export default function useApi() {
 		return data[0];
 	};
 
+	const post = async (table: string, form: object) => {
+		const { error } = await supabase.from(table).insert({ ...form });
+		if (error) throw error;
+	}
 
 	return {
 		list,
 		getById,
+		post
 	};
 }
