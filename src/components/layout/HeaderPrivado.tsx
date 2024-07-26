@@ -49,7 +49,7 @@ export function HeaderPrivado() {
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="md:hidden">
                 <Menu className="h-6 w-6" />
-                <span className="sr-only">Fechar menu lateral</span>
+                <span className="sr-only">Abrir menu lateral</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px]">
