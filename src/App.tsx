@@ -12,112 +12,115 @@ import { MotoListagem } from "./pages/moto/MotoListagem";
 import { ModeloListagem } from "./pages/modelo/ModeloListagem";
 import { ModeloDetalhes } from "./pages/modelo/ModeloDetalhes";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/contexts/AuthContext.tsx";
+import { RedirecionamentoAuth } from "./pages/autenticacao/RedirecionamentoAuth";
+
 function App() {
-  // TODO: ajustar visual header
-  // TODO: ajustar visual card moto disponivel
-  // TODO: criar layouts para renderizar condicionalmente header conforme autenticação
+	// TODO: ajustar visual header
+	// TODO: ajustar visual card moto disponivel
+	// TODO: criar layouts para renderizar condicionalmente header conforme autenticação
 
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: (
-        <>
-          <HeaderPublico />
-          <MotosDisponiveis />
-        </>
-      ),
-      errorElement: <Error404 />,
-    },
-    { path: "login", element: <Login /> },
-    {
-      path: "gestao",
-      element: <Outlet />,
-      children: [
-        {
-          index: true,
-          element: (
-            <>
-              <HeaderPrivado />
-              <GestaoIndex />
-            </>
-          ),
-        },
-        {
-          path: "moto",
-          element: <Outlet />,
-          children: [
-            {
-              path: "cadastro",
-              element: (
-                <>
-                  <HeaderPrivado />
-                  <MotoCadastro />
-                </>
-              ),
-            },
-            {
-              path: ":id",
-              element: (
-                <>
-                  <HeaderPrivado />
-                  <MotoDetalhes />
-                </>
-              ),
-            },
-            {
-              path: "listar",
-              element: (
-                <>
-                  <HeaderPrivado />
-                  <MotoListagem />
-                </>
-              ),
-            },
-          ],
-        },
-        {
-          path: "modelo",
-          element: <Outlet />,
-          children: [
-            {
-              path: "cadastro",
-              element: (
-                <>
-                  <HeaderPrivado />
-                  <ModeloCadastro />
-                </>
-              ),
-            },
-            {
-              path: ":id",
-              element: (
-                <>
-                  <HeaderPrivado />
-                  <ModeloDetalhes />
-                </>
-              ),
-            },
-            {
-              path: "listar",
-              element: (
-                <>
-                  <HeaderPrivado />
-                  <ModeloListagem />
-                </>
-              ),
-            },
-          ],
-        },
-      ],
-    },
-  ]);
+	const router = createBrowserRouter([
+		{
+			path: "/",
+			element: (
+				<>
+					<HeaderPublico />
+					<MotosDisponiveis />
+				</>
+			),
+			errorElement: <Error404 />,
+		},
+		{ path: "login", element: <RedirecionamentoAuth Component={<Login/>} /> },
+		{
+			path: "gestao",
+			element: <Outlet />,
+			children: [
+				{
+					index: true,
+					element: (
+						<>
+							<HeaderPrivado />
+							<GestaoIndex />
+						</>
+					),
+				},
+				{
+					path: "moto",
+					element: <Outlet />,
+					children: [
+						{
+							path: "cadastro",
+							element: (
+								<>
+									<HeaderPrivado />
+									<MotoCadastro />
+								</>
+							),
+						},
+						{
+							path: ":id",
+							element: (
+								<>
+									<HeaderPrivado />
+									<MotoDetalhes />
+								</>
+							),
+						},
+						{
+							path: "listar",
+							element: (
+								<>
+									<HeaderPrivado />
+									<MotoListagem />
+								</>
+							),
+						},
+					],
+				},
+				{
+					path: "modelo",
+					element: <Outlet />,
+					children: [
+						{
+							path: "cadastro",
+							element: (
+								<>
+									<HeaderPrivado />
+									<ModeloCadastro />
+								</>
+							),
+						},
+						{
+							path: ":id",
+							element: (
+								<>
+									<HeaderPrivado />
+									<ModeloDetalhes />
+								</>
+							),
+						},
+						{
+							path: "listar",
+							element: (
+								<>
+									<HeaderPrivado />
+									<ModeloListagem />
+								</>
+							),
+						},
+					],
+				},
+			],
+		},
+	]);
 
-  return (
-    <>
-      <RouterProvider router={router} />
-      <Toaster />
-    </>
-  );
+	return (
+		<AuthProvider>
+			<RouterProvider router={router} />
+			<Toaster />
+		</AuthProvider>
+	);
 }
 
 export default App;
