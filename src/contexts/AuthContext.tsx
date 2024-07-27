@@ -5,7 +5,7 @@ import  supabase  from "@/services/supabaseClient";
 interface AuthContextProps {
 	session: Session | null | undefined;
 	user: User | null | undefined;
-	signOut: () => void;
+	isLoggedIn: boolean;
 }
 
 export const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
@@ -42,11 +42,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		};
 	}, []);
 
+	const isLoggedIn = !!user;
+
 	const valuesProvider = {
 		session,
 		user,
-		signOut: () => supabase.auth.signOut(),
-
+		isLoggedIn,
 	};
 
 	return (
