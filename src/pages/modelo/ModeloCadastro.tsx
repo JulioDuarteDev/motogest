@@ -29,17 +29,17 @@ import Marca from "@/interfaces/Marca";
 import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
-	nome: z.string().min(2, {
+	_nome: z.string().min(2, {
 		message: "Informe um modelo válido",
 	}),
-	marca: z.string({
+	_marca: z.string({
 		required_error: "É necessário selecionar uma marca",
 	}),
-	cilindrada: z.coerce
+	_cilindrada: z.coerce
 		.number({ message: "Informe um número válido" })
 		.int("Deve ser um número inteiro")
 		.positive("Deve ser um número positivo"),
-	cores: z
+	_cores: z
 		.array(
 			z.object({
 				nome: z.string().min(3, "Informe uma cor válida"),
@@ -55,7 +55,7 @@ const formSchema = z.object({
 
 export function ModeloCadastro() {
 	const navigate = useNavigate();
-	const { list, post } = useApi();
+	const { list, rpc } = useApi();
 	const [marcas, setMarcas] = useState<Marca[]>([]);
 
 	async function getMarcas() {
@@ -73,10 +73,11 @@ export function ModeloCadastro() {
 
 	async function postModelo(form: object) {
 		try {
-			await post("modelos", form);
+			await rpc("modelo_chain_insert", form);
+
 			toast({
 				title: "Sucesso!",
-				description: `Modelo "${form.nome}" cadastrado com sucesso!`,
+				description: `Modelo "${form._nome}" cadastrado com sucesso!`,
 				variant: "success",
 			});
 		} catch (error) {
@@ -97,9 +98,9 @@ export function ModeloCadastro() {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			nome: "",
-			cores: [{ nome: "", url: "" }],
-			cilindrada: "",
+			_nome: "",
+			_cores: [{ nome: "", url: "" }],
+			_cilindrada: "",
 		},
 	});
 
@@ -110,7 +111,7 @@ export function ModeloCadastro() {
 
 	const { append, remove, fields } = useFieldArray({
 		control,
-		name: "cores",
+		name: "_cores",
 	});
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
@@ -120,7 +121,6 @@ export function ModeloCadastro() {
 	const isCadastro = true;
 	return (
 		<div className="container space-y-4">
-			<ul></ul>
 			<h2 className="text-3xl font-bold tracking-tight">
 				{isCadastro ? "Cadastro" : "Edição"} de modelo de moto
 			</h2>
@@ -132,7 +132,7 @@ export function ModeloCadastro() {
 						</legend>
 						<FormField
 							control={form.control}
-							name="marca"
+							name="_marca"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Marca</FormLabel>
@@ -159,7 +159,7 @@ export function ModeloCadastro() {
 
 						<FormField
 							control={form.control}
-							name="nome"
+							name="_nome"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Modelo</FormLabel>
@@ -173,7 +173,7 @@ export function ModeloCadastro() {
 
 						<FormField
 							control={form.control}
-							name="cilindrada"
+							name="_cilindrada"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Cilindradas</FormLabel>
@@ -195,10 +195,10 @@ export function ModeloCadastro() {
 						</legend>
 
 						{fields?.map((field, index) => (
-							<div key={field.id} className="flex gap-4">
+							<div key={field.id} className="flex flex-col sm:flex-row gap-4">
 								<FormField
 									control={form.control}
-									name={`cores.${index}.nome`}
+									name={`_cores.${index}.nome`}
 									render={({ field }) => (
 										<FormItem className="flex-1">
 											<FormLabel>Cor {index + 1}</FormLabel>
@@ -211,7 +211,7 @@ export function ModeloCadastro() {
 								/>
 								<FormField
 									control={form.control}
-									name={`cores.${index}.url`}
+									name={`_cores.${index}.url`}
 									render={({ field }) => (
 										<FormItem className="flex-1">
 											<FormLabel>URL da imagem {index + 1}</FormLabel>
@@ -231,11 +231,7 @@ export function ModeloCadastro() {
 										size="icon"
 										type="button"
 										onClick={() => remove(index)}
-										className={
-											errors.cores && errors.cores[index]
-												? "self-end mb-7"
-												: "self-end"
-										}
+										className="sm:mt-8 w-full sm:w-10"
 									>
 										<Trash2Icon className="size-4 " />
 									</Button>
