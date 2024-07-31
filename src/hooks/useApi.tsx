@@ -20,7 +20,7 @@ export default function useApi() {
 		if (error) throw error;
 	};
 
-	const rpc = async (rpc_name: string, params: object) => {
+	const rpc = async (rpc_name: string, params?: object) => {
 		const { data, error } = await supabase.rpc(rpc_name, params);
 		if (error) throw error;
 		return data;
