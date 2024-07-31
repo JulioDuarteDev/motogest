@@ -271,22 +271,26 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 					{formataDetalhesPaginacao()}
 				</div>
 				<div className="space-x-2">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.previousPage()}
-						disabled={!table.getCanPreviousPage()}
-					>
-						Anterior
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.nextPage()}
-						disabled={!table.getCanNextPage()}
-					>
-						Seguinte
-					</Button>
+					{(table.getCanPreviousPage() || table.getCanNextPage()) && (
+						<>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => table.previousPage()}
+								disabled={!table.getCanPreviousPage()}
+							>
+								Anterior
+							</Button>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => table.nextPage()}
+								disabled={!table.getCanNextPage()}
+							>
+								Seguinte
+							</Button>
+						</>
+					)}
 				</div>
 			</div>
 		</div>
