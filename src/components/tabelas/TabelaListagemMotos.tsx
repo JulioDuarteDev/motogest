@@ -18,7 +18,7 @@ import {
 	SquarePen,
 	Trash2Icon,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
 	DropdownMenu,
@@ -38,21 +38,33 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MotosProps } from "@/interfaces/MotosProps";
 import useApi from "@/hooks/useApi";
 import { toast } from "@/components/ui/use-toast.ts";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface TabelaListagemMotosProps {
 	data: MotosProps[];
 }
 
 export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
-  const navigate = useNavigate();
-  const { deleteById } = useApi();
-  
+	const navigate = useNavigate();
+	const { deleteById } = useApi();
+
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+	const [itemExcluir, setItemExcluir] = useState<MotosProps>("");
+	const [openAlert, setOpenAlert] = useState(false);
 
 	function getVarianteBadge(disponibilidade: MotosProps["disponibilidade"]) {
 		switch (disponibilidade) {
@@ -65,24 +77,24 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 			default:
 				return undefined;
 		}
-  }
-  async function handleExcluirMoto(moto: MotosProps) {
-    try {
-      await deleteById("motos", moto.id);
-      toast({
-        title: "Sucesso!",
-        description: `Moto de placa "${moto.placa}" cadastrada com sucesso!`,
-        variant: "success",
-      });
-      navigate(0);
-    } catch (error) {
-      toast({
-        title: "Ops!",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  }
+	}
+	async function handleExcluirMoto(moto: MotosProps) {
+		try {
+			await deleteById("motos", moto.id);
+			navigate(0);
+			toast({
+				title: "Sucesso!",
+				description: `Moto de placa "${moto.placa}" deletada com sucesso!`,
+				variant: "success",
+			});
+		} catch (error) {
+			toast({
+				title: "Ops!",
+				description: error.message,
+				variant: "destructive",
+			});
+		}
+	}
 
 	const columns: ColumnDef<MotosProps>[] = [
 		{
@@ -181,7 +193,10 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 							</DropdownMenuItem>
 							<DropdownMenuItem
 								className="flex gap-2"
-								onClick={() => handleExcluirMoto(item)}
+								onClick={() => {
+									setItemExcluir(item);
+									setOpenAlert(true);
+								}}
 							>
 								<Trash2Icon className="size-4" />
 								Excluir
@@ -209,20 +224,22 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 	});
 
 	function formataDetalhesPaginacao() {
+		const totalMotos = table.getFilteredRowModel().rows.length;
+
+		if (totalMotos === 0) return;
+
 		const paginacao = table.options?.state?.pagination;
 		const tamanhoPagina = paginacao?.pageSize || 10;
-		const paginaAtual = paginacao?.pageIndex + 1 || 1;
-		const totalMotos = table.getFilteredRowModel().rows.length;
+		const paginaAtual = (paginacao?.pageIndex || 0) + 1;
 		const inicioContagem = (paginaAtual - 1) * tamanhoPagina + 1;
 		const fimContagem = Math.min(
 			inicioContagem + tamanhoPagina - 1,
 			totalMotos
 		);
+		const plural = totalMotos > 1 ? "s" : "";
 
-		return `Exibindo ${inicioContagem}-${fimContagem} de ${totalMotos} motos.`;
+		return `Exibindo ${inicioContagem}-${fimContagem} de ${totalMotos} moto${plural}`;
 	}
-
-	
 
 	return (
 		<div className="w-full container">
@@ -235,10 +252,13 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 					}
 					className="max-w-sm"
 				/>
-				<Button className="flex gap-2" onClick={() => navigate("cadastro")}>
+				<Link
+					className={buttonVariants({ variant: "default" }) + " flex gap-2"}
+					to="cadastro"
+				>
 					<PlusIcon className="size-4" />
 					Cadastrar moto
-				</Button>
+				</Link>
 			</div>
 			<div className="rounded-md border">
 				<Table>
@@ -315,6 +335,29 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 					)}
 				</div>
 			</div>
+			<AlertDialog open={openAlert}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Tem certeza que deseja excluir?</AlertDialogTitle>
+						<AlertDialogDescription>
+							Essa ação não pode ser revertida. Isso irá deletar permanentemente
+							a moto de placa <strong>{itemExcluir.placa}</strong> e todas suas
+							informações associadas em nossos servidores.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={() => setOpenAlert(false)}>
+							Cancelar
+						</AlertDialogCancel>
+						<AlertDialogAction
+							className={buttonVariants({ variant: "destructive" })}
+							onClick={() => handleExcluirMoto(itemExcluir)}
+						>
+							Excluir
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }

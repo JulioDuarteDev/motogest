@@ -1,5 +1,6 @@
 // TODO: ajustar mensagens de validação do ZOD em todos os inputs
 // TODO: adicionar tooltip aos campos de url de imagem
+// TODO: sort de marcas por ordem alfabética
 
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";

@@ -11,23 +11,27 @@ export function MotoListagem() {
 	async function getDadosMotos() {
 		try {
 			const data = await rpc("get_data_list_motos");
-			const { motos, modelos, disponibilidade, variacoes_modelos } = data;
-
-			const dadosTabela = motos.map((moto) => {
-				const modelo = modelos.find((m) => m.id === moto.modelo);
-				const cor = variacoes_modelos.find((c) => c.modelo == modelo.id);
-				const disp = disponibilidade.find((d) => d.id === moto.disponibilidade);
-				return {
-					id: moto.id,
-					disponibilidade: disp ? disp.nome : "Desconhecido",
-					placa: moto.placa,
-					marca: modelo ? modelo.marca : "Desconhecida",
-					modelo: modelo ? modelo.nome : "Desconhecido",
-          cor: cor ? cor.cor : "Desconhecida",
-          ano: moto.ano,
-				};
-			});
-      setDados(dadosTabela);
+      const { motos, modelos, disponibilidade, variacoes_modelos } = data;
+      
+      if (motos) {
+        const dadosTabela = motos.map((moto: MotosProps) => {
+					const modelo = modelos.find((m) => m.id === moto.modelo);
+					const cor = variacoes_modelos.find((c) => c.modelo == modelo.id);
+					const disp = disponibilidade.find(
+						(d) => d.id === moto.disponibilidade
+					);
+					return {
+						id: moto.id,
+						disponibilidade: disp ? disp.nome : "Desconhecido",
+						placa: moto.placa,
+						marca: modelo ? modelo.marca : "Desconhecida",
+						modelo: modelo ? modelo.nome : "Desconhecido",
+						cor: cor ? cor.cor : "Desconhecida",
+						ano: moto.ano,
+					};
+				});
+				setDados(dadosTabela);
+      }
       
 		} catch (error) {
 			toast({
