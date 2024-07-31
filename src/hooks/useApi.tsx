@@ -26,10 +26,17 @@ export default function useApi() {
 		return data;
 	}
 
+	const deleteById = async (table: string, id: string) => {
+		const { error } = await supabase.from(table).delete().eq("id", id);
+
+		if (error) throw error;
+	};
+
 	return {
 		list,
 		getById,
 		post,
-		rpc
+		rpc,
+		deleteById
 	};
 }

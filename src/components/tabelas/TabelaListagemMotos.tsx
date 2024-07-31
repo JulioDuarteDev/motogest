@@ -40,12 +40,17 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MotosProps } from "@/interfaces/MotosProps";
+import useApi from "@/hooks/useApi";
+import { toast } from "@/components/ui/use-toast.ts";
 
 interface TabelaListagemMotosProps {
 	data: MotosProps[];
 }
 
 export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
+  const navigate = useNavigate();
+  const { deleteById } = useApi();
+  
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -60,7 +65,24 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 			default:
 				return undefined;
 		}
-	}
+  }
+  async function handleExcluirMoto(moto: MotosProps) {
+    try {
+      await deleteById("motos", moto.id);
+      toast({
+        title: "Sucesso!",
+        description: `Moto de placa "${moto.placa}" cadastrada com sucesso!`,
+        variant: "success",
+      });
+      navigate(0);
+    } catch (error) {
+      toast({
+        title: "Ops!",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }
 
 	const columns: ColumnDef<MotosProps>[] = [
 		{
@@ -159,7 +181,7 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 							</DropdownMenuItem>
 							<DropdownMenuItem
 								className="flex gap-2"
-								onClick={() => navigate(`edicao/${item.id}`)}
+								onClick={() => handleExcluirMoto(item)}
 							>
 								<Trash2Icon className="size-4" />
 								Excluir
@@ -200,7 +222,7 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 		return `Exibindo ${inicioContagem}-${fimContagem} de ${totalMotos} motos.`;
 	}
 
-	const navigate = useNavigate();
+	
 
 	return (
 		<div className="w-full container">
