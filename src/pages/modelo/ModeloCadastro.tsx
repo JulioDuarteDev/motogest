@@ -80,14 +80,14 @@ export function ModeloCadastro() {
 				description: `Modelo "${form._nome}" cadastrado com sucesso!`,
 				variant: "success",
 			});
+			
+			navigate("/gestao/modelo");
 		} catch (error) {
 			toast({
 				title: "Ops!",
 				description: error.message,
 				variant: "destructive",
 			});
-		} finally {
-			navigate("/modelo");
 		}
 	}
 
@@ -104,10 +104,7 @@ export function ModeloCadastro() {
 		},
 	});
 
-	const {
-		control,
-		formState: { errors },
-	} = form;
+	const { control } = form;
 
 	const { append, remove, fields } = useFieldArray({
 		control,
