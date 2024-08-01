@@ -2,23 +2,28 @@ import { useEffect, useState } from "react";
 import useApi from "@/hooks/useApi";
 import { toast } from "@/components/ui/use-toast.ts";
 import { TabelaListagemMotos } from "@/components/tabelas/TabelaListagemMotos";
-import {MotosProps} from "@/interfaces/MotosProps";
+import { MotosProps } from "@/interfaces/MotosProps";
+import Modelo from "@/interfaces/Modelo";
+import Variacao from "@/interfaces/Variacao";
+import Moto from "@/interfaces/Moto";
+import Disponibilidade from "@/interfaces/Disponibilidade";
 
 export function MotoListagem() {
 	const { rpc } = useApi();
 	const [dados, setDados] = useState<MotosProps[]>([]);
-
+	
 	async function getDadosMotos() {
 		try {
 			const data = await rpc("get_data_list_motos");
-      const { motos, modelos, disponibilidade, variacoes_modelos } = data;
-      
-      if (motos) {
-        const dadosTabela = motos.map((moto: MotosProps) => {
-					const modelo = modelos.find((m) => m.id === moto.modelo);
-					const cor = variacoes_modelos.find((c) => c.modelo == modelo.id);
+			const { motos, modelos, disponibilidade, variacoes_modelos } = data;
+			if (motos) {
+				const dadosTabela = motos.map((moto: Moto) => {
+					const modelo = modelos.find((m: Modelo) => m.id === moto.modelo);
+					const cor = variacoes_modelos.find(
+						(c: Variacao) => c.id == moto.variacao
+					);
 					const disp = disponibilidade.find(
-						(d) => d.id === moto.disponibilidade
+						(d: Disponibilidade) => d.id === moto.disponibilidade
 					);
 					return {
 						id: moto.id,
@@ -31,8 +36,7 @@ export function MotoListagem() {
 					};
 				});
 				setDados(dadosTabela);
-      }
-      
+			}
 		} catch (error) {
 			toast({
 				title: "Ops!",

@@ -59,7 +59,7 @@ const schemaGeral = z.object({
 
 	quilometragem: z.coerce
 		.number({ message: numeroValido })
-		.positive(numeroValido),
+		.nonnegative(numeroValido),
 	observacoes: z
 		.string()
 		.max(1000, "O campo observações deve ter no máximo 1000 caracteres")
