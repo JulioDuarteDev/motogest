@@ -26,79 +26,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import useApi from "@/hooks/useApi";
 import Marca from "@/interfaces/Marca";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Modelo from "@/interfaces/Modelo";
 import Variacao from "@/interfaces/Variacao";
 import Disponibilidade from "@/interfaces/Disponibilidade";
-
-const numeroValido = "Informe um número válido";
-const valorValido = "Informe um valor válido";
-const diaValido = "Informe um dia válido";
-const anoValido = "Informe um ano válido";
-
-const schemaGeral = z.object({
-	modelo: z.coerce.number({
-		message: "É necessário selecionar um modelo",
-	}),
-	marca: z.string({
-		message: "É necessário selecionar uma marca",
-	}),
-	variacao: z.coerce.number({
-		message: "É necessário selecionar uma cor",
-	}),
-	disponibilidade: z.coerce.number({
-		message: "É necessário selecionar a disponibilidade",
-	}),
-	placa: z
-		.string({ message: "É necessário informar a placa" })
-		.length(7, "Informe uma placa válida"),
-	ano: z.coerce
-		.number({ message: anoValido })
-		.positive(anoValido)
-		.min(1000, anoValido),
-
-	quilometragem: z.coerce
-		.number({ message: numeroValido })
-		.nonnegative(numeroValido),
-	observacoes: z
-		.string()
-		.max(1000, "O campo observações deve ter no máximo 1000 caracteres")
-		.optional(),
-});
-
-const schemaFinanciamento = z
-	.object({
-		quitado: z
-			.string({
-				message: "É necessário selecionar a situação financeira",
-			})
-			.transform((val) => val === "true"),
-		valor: z.coerce.number({ message: valorValido }).positive(valorValido),
-		valor_parcela: z.coerce.number({ message: valorValido }),
-		parcelas_restantes: z.coerce.number({ message: numeroValido }),
-		dia_vencimento: z.coerce.number({ message: diaValido }),
-	})
-	.superRefine((values, ctx) => {
-		if (values.quitado) return;
-
-		const campos = [
-			{ campo: "valor_parcela", mensagem: valorValido },
-			{ campo: "parcelas_restantes", mensagem: numeroValido },
-			{ campo: "dia_vencimento", mensagem: diaValido },
-		];
-
-		campos.forEach(({ campo, mensagem }) => {
-			if (!values[campo]) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message: mensagem,
-					path: [campo],
-				});
-			}
-		});
-	});
-
-const formSchema = z.intersection(schemaGeral, schemaFinanciamento);
+import formSchema from "@/components/forms/cadastro_moto/formSchema";
 
 const situacoes = [
 	{ nome: "Quitada", id: "1", value: true },
@@ -115,6 +47,9 @@ export function MotoCadastro() {
 	const [cores, setCores] = useState<Variacao[]>([]);
 	const [disponibilidade, setDisponibilidade] = useState<Disponibilidade[]>([]);
 	const [showFinanciamento, setShowFinanciamento] = useState(false);
+
+	const { id } = useParams();
+	const isEdicao = !!id;
 
 	async function getDadosIniciais() {
 		try {
@@ -133,7 +68,7 @@ export function MotoCadastro() {
 			});
 		}
 	}
-	function handleChangeModelo(value) {
+	function handleChangeModelo(value: number) {
 		const coresFiltradas = todasCores.filter((cor) => cor.modelo == value);
 		setCores(coresFiltradas);
 	}
@@ -174,27 +109,25 @@ export function MotoCadastro() {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			placa: "",
-			ano: "",
-			quilometragem: "",
-			valor: "",
-			valor_parcela: "",
-			dia_vencimento: "",
-			parcelas_restantes: "",
-			observacoes: "",
+			placa: undefined,
+			ano: undefined,
+			quilometragem: undefined,
+			valor: undefined,
+			valor_parcela: undefined,
+			dia_vencimento: undefined,
+			parcelas_restantes: undefined,
+			observacoes: undefined,
 		},
 	});
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		isCadastro ? postMoto(values) : console.log(values);
+		isEdicao ? console.log(values) : postMoto(values);
 	}
 
-	const isCadastro = true;
+	
 	return (
 		<div className="container">
-			<h2>
-				{isCadastro ? "Cadastro" : "Edição"} de moto
-			</h2>
+			<h2>{isEdicao ? "Edição" : "Cadastro"} de moto</h2>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
 					<fieldset className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 rounded-lg border p-4">
@@ -502,8 +435,7 @@ export function MotoCadastro() {
 							</>
 						)}
 					</fieldset>
-
-					<Button type="submit">{isCadastro ? "Cadastrar" : "Editar"}</Button>
+					<Button type="submit">{isEdicao ? "Editar" : "Cadastrar"}</Button>
 				</form>
 			</Form>
 		</div>
