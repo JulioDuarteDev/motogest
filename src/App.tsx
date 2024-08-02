@@ -1,80 +1,62 @@
-import { HeaderPublico } from "@/components/layout/HeaderPublico";
 import { MotosDisponiveis } from "@/pages/moto/MotosDisponiveis";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
-import { Error404 } from "./pages/Error404";
-import { MotoCadastro } from "./pages/moto/MotoCadastro";
-import { ModeloCadastro } from "./pages/modelo/ModeloCadastro";
-import { HeaderPrivado } from "./components/layout/HeaderPrivado";
-import { Login } from "./pages/autenticacao/Login";
-import { GestaoIndex } from "./pages/GestaoIndex";
-import { MotoDetalhes } from "./pages/moto/MotoDetalhes";
-import { MotoListagem } from "./pages/moto/MotoListagem";
-import { ModeloListagem } from "./pages/modelo/ModeloListagem";
-import { ModeloDetalhes } from "./pages/modelo/ModeloDetalhes";
+import { Error404 } from "@/pages/Error404";
+import { MotoCadastro } from "@/pages/moto/MotoCadastro";
+import { ModeloCadastro } from "@/pages/modelo/ModeloCadastro";
+import { Login } from "@/pages/autenticacao/Login";
+import { GestaoIndex } from "@/pages/GestaoIndex";
+import { MotoDetalhes } from "@/pages/moto/MotoDetalhes";
+import { MotoListagem } from "@/pages/moto/MotoListagem";
+import { ModeloListagem } from "@/pages/modelo/ModeloListagem";
+import { ModeloDetalhes } from "@/pages/modelo/ModeloDetalhes";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext.tsx";
-import { RedirecionamentoAuth } from "./pages/autenticacao/RedirecionamentoAuth";
+import { RedirecionamentoAuth } from "@/components/redirecionamentos/RedirecionamentoAuth";
+import { RedirecionamentoRotas } from "@/components/redirecionamentos/RedirecionamentoRotas";
 
 function App() {
 	// TODO: ajustar visual header
 	// TODO: ajustar visual card moto disponivel
-	// TODO: criar layouts para renderizar condicionalmente header conforme autenticação
 
 	const router = createBrowserRouter([
 		{
 			path: "/",
 			element: (
-				<>
-					<HeaderPublico />
-					<MotosDisponiveis />
-				</>
+				<RedirecionamentoRotas
+					isPrivate={false}
+					Component={<MotosDisponiveis />}
+				/>
 			),
 			errorElement: <Error404 />,
 		},
-		{ path: "login", element: <RedirecionamentoAuth Component={<Login/>} /> },
+		{ path: "login", element: <RedirecionamentoAuth Component={<Login />} /> },
 		{
 			path: "gestao",
 			element: <Outlet />,
 			children: [
 				{
 					index: true,
-					element: (
-						<>
-							<HeaderPrivado />
-							<GestaoIndex />
-						</>
-					),
+					element: <RedirecionamentoRotas Component={<GestaoIndex />} />,
 				},
 				{
 					path: "moto",
 					element: <Outlet />,
 					children: [
 						{
+							index: true,
+							element: <RedirecionamentoRotas Component={<MotoListagem />} />,
+						},
+						{
 							path: "cadastro",
-							element: (
-								<>
-									<HeaderPrivado />
-									<MotoCadastro />
-								</>
-							),
+							element: <RedirecionamentoRotas Component={<MotoCadastro />} />,
+						},
+						{
+							path: "edicao/:id",
+							element: <RedirecionamentoRotas Component={<MotoCadastro />} />,
 						},
 						{
 							path: ":id",
-							element: (
-								<>
-									<HeaderPrivado />
-									<MotoDetalhes />
-								</>
-							),
-						},
-						{
-							path: "listar",
-							element: (
-								<>
-									<HeaderPrivado />
-									<MotoListagem />
-								</>
-							),
+							element: <RedirecionamentoRotas Component={<MotoDetalhes />} />,
 						},
 					],
 				},
@@ -83,31 +65,20 @@ function App() {
 					element: <Outlet />,
 					children: [
 						{
+							index: true,
+							element: <RedirecionamentoRotas Component={<ModeloListagem />} />,
+						},
+						{
 							path: "cadastro",
-							element: (
-								<>
-									<HeaderPrivado />
-									<ModeloCadastro />
-								</>
-							),
+							element: <RedirecionamentoRotas Component={<ModeloCadastro />} />,
+						},
+						{
+							path: "edicao/:id",
+							element: <RedirecionamentoRotas Component={<ModeloCadastro />} />,
 						},
 						{
 							path: ":id",
-							element: (
-								<>
-									<HeaderPrivado />
-									<ModeloDetalhes />
-								</>
-							),
-						},
-						{
-							path: "listar",
-							element: (
-								<>
-									<HeaderPrivado />
-									<ModeloListagem />
-								</>
-							),
+							element: <RedirecionamentoRotas Component={<ModeloDetalhes />} />,
 						},
 					],
 				},

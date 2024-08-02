@@ -1,4 +1,4 @@
-import Variacao from "./Cor";
+import Variacao from "./Variacao";
 
 export default interface Modelo {
 	id: number;

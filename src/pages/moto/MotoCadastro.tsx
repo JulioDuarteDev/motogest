@@ -59,7 +59,7 @@ const schemaGeral = z.object({
 
 	quilometragem: z.coerce
 		.number({ message: numeroValido })
-		.positive(numeroValido),
+		.nonnegative(numeroValido),
 	observacoes: z
 		.string()
 		.max(1000, "O campo observações deve ter no máximo 1000 caracteres")
@@ -192,7 +192,7 @@ export function MotoCadastro() {
 	const isCadastro = true;
 	return (
 		<div className="container">
-			<h2 className="text-3xl font-bold tracking-tight">
+			<h2>
 				{isCadastro ? "Cadastro" : "Edição"} de moto
 			</h2>
 			<Form {...form}>
