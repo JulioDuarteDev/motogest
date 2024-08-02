@@ -242,7 +242,7 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 	}
 
 	return (
-		<div className="w-full container">
+		<>
 			<div className="flex items-center justify-between py-4">
 				<Input
 					placeholder="Filtrar por placa..."
@@ -358,6 +358,6 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-		</div>
+		</>
 	);
 }

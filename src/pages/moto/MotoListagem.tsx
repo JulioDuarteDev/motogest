@@ -51,8 +51,9 @@ export function MotoListagem() {
 	}, []);
 
 	return (
-		<>
+		<div className="container">
+			<h2>Motos</h2>
 			<TabelaListagemMotos data={dados} />
-		</>
+		</div>
 	);
 }

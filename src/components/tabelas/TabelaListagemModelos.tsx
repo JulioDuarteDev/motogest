@@ -229,7 +229,7 @@ export function TabelaListagemModelos({ data }: TabelaListagemModelosProps) {
 	}
 
 	return (
-		<div className="w-full container">
+		<>
 			<div className="flex items-center justify-between py-4">
 				<Input
 					placeholder="Filtrar por modelo..."
@@ -346,6 +346,6 @@ export function TabelaListagemModelos({ data }: TabelaListagemModelosProps) {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-		</div>
+		</>
 	);
 }

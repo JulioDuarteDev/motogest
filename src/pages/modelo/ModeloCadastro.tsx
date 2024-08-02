@@ -119,7 +119,7 @@ export function ModeloCadastro() {
 	const isCadastro = true;
 	return (
 		<div className="container space-y-4">
-			<h2 className="text-3xl font-bold tracking-tight">
+			<h2>
 				{isCadastro ? "Cadastro" : "Edição"} de modelo de moto
 			</h2>
 			<Form {...form}>

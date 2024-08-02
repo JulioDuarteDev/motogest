@@ -11,8 +11,8 @@ import { ModeloListagem } from "@/pages/modelo/ModeloListagem";
 import { ModeloDetalhes } from "@/pages/modelo/ModeloDetalhes";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext.tsx";
-import { RedirecionamentoAuth } from "@/pages/redirecionamentos/RedirecionamentoAuth";
-import { RedirecionamentoRotas } from "@/pages/redirecionamentos/RedirecionamentoRotas";
+import { RedirecionamentoAuth } from "@/components/redirecionamentos/RedirecionamentoAuth";
+import { RedirecionamentoRotas } from "@/components/redirecionamentos/RedirecionamentoRotas";
 
 function App() {
 	// TODO: ajustar visual header

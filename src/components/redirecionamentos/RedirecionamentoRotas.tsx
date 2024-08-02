@@ -20,9 +20,9 @@ export function RedirecionamentoRotas({
 	}
 
 	return (
-		<>
+		<div className="flex flex-col space-y-5">
 			{isLoggedIn ? <HeaderPrivado /> : <HeaderPublico/>}
 			{Component}
-		</>
+		</div>
 	);
 }

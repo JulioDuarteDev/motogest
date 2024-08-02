@@ -30,8 +30,9 @@ export function ModeloListagem() {
 	}, []);
 
 	return (
-		<>
+		<div className="container">
+			<h2>Modelos</h2>
 			<TabelaListagemModelos data={dados} />
-		</>
+		</div>
 	);
 }
