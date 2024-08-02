@@ -12,14 +12,11 @@ import {
 import {
 	ArrowUpDown,
 	ClipboardPen,
-	Eye,
 	MoreHorizontal,
 	PlusIcon,
 	SquarePen,
 	Trash2Icon,
 } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -38,10 +35,12 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { MotosProps } from "@/interfaces/MotosProps";
+import { useNavigate } from "react-router-dom";
+import { ModelosProps } from "@/interfaces/ModelosProps";
 import useApi from "@/hooks/useApi";
 import { toast } from "@/components/ui/use-toast.ts";
+import { Link } from "react-router-dom";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -53,38 +52,28 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-interface TabelaListagemMotosProps {
-	data: MotosProps[];
+interface TabelaListagemModelosProps {
+	data: ModelosProps[];
 }
 
-export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
+export function TabelaListagemModelos({ data }: TabelaListagemModelosProps) {
 	const navigate = useNavigate();
 	const { deleteById } = useApi();
 
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-	const [itemExcluir, setItemExcluir] = useState<MotosProps>({} as MotosProps);
+	const [itemExcluir, setItemExcluir] = useState<ModelosProps>(
+		{} as ModelosProps
+	);
 	const [openAlert, setOpenAlert] = useState(false);
 
-	function getVarianteBadge(disponibilidade: MotosProps["disponibilidade"]) {
-		switch (disponibilidade) {
-			case "Disponível":
-				return "success";
-			case "Em manutenção":
-				return "destructive";
-			case "Locada":
-				return "neutral";
-			default:
-				return undefined;
-		}
-	}
-	async function handleExcluirMoto(moto: MotosProps) {
+	async function handleExcluirModelo(modelo: ModelosProps) {
 		try {
-			await deleteById("motos", moto.id);
+			await deleteById("modelos", modelo.id);
 			navigate(0);
 			toast({
 				title: "Sucesso!",
-				description: `Moto de placa "${moto.placa}" deletada com sucesso!`,
+				description: `Modelo "${modelo.nome}" excluído com sucesso!`,
 				variant: "success",
 			});
 		} catch (error) {
@@ -96,9 +85,14 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 		}
 	}
 
-	const columns: ColumnDef<MotosProps>[] = [
+	const columns: ColumnDef<ModelosProps>[] = [
 		{
-			accessorKey: "disponibilidade",
+			accessorKey: "marca",
+			header: () => <div>Marca</div>,
+			cell: ({ row }) => <div>{row.getValue("marca")}</div>,
+		},
+		{
+			accessorKey: "nome",
 			header: ({ column }) => {
 				return (
 					<Button
@@ -107,55 +101,55 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 						className="flex items-center gap-2"
 						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
 					>
-						Disponibilidade
+						Modelo
 						<ArrowUpDown className="size-4" />
 					</Button>
 				);
 			},
-			cell: ({ row }) => (
-				<Badge
-					className="capitalize"
-					variant={getVarianteBadge(row.getValue("disponibilidade"))}
-				>
-					{row.getValue("disponibilidade")}
-				</Badge>
-			),
+			cell: ({ row }) => <div>{row.getValue("nome")}</div>,
 		},
 		{
-			accessorKey: "placa",
-			header: () => <div>Placa</div>,
-			cell: ({ row }) => (
-				<div className="uppercase">{row.getValue("placa")}</div>
-			),
+			accessorKey: "cilindrada",
+			header: ({ column }) => {
+				return (
+					<Button
+						variant="ghost"
+						size="sm"
+						className="flex items-center gap-2"
+						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+					>
+						Cilindradas
+						<ArrowUpDown className="size-4" />
+					</Button>
+				);
+			},
+			cell: ({ row }) => <div>{row.getValue("cilindrada")}</div>,
 		},
 		{
-			accessorKey: "ano",
-			header: () => <div>Ano</div>,
-			cell: ({ row }) => <div>{row.getValue("ano")}</div>,
+			accessorKey: "quantidade_motos",
+			header: ({ column }) => {
+				return (
+					<Button
+						variant="ghost"
+						size="sm"
+						className="flex items-center gap-2"
+						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+					>
+						Quantidade de motos
+						<ArrowUpDown className="size-4" />
+					</Button>
+				);
+			},
+			cell: ({ row }) => <div>{row.getValue("quantidade_motos")}</div>,
 		},
 
-		{
-			accessorKey: "modelo",
-			header: () => <div>Modelo</div>,
-			cell: ({ row }) => <div>{row.getValue("modelo")}</div>,
-		},
-		{
-			accessorKey: "cor",
-			header: () => <div>Cor</div>,
-			cell: ({ row }) => <div>{row.getValue("cor")}</div>,
-		},
-		{
-			accessorKey: "marca",
-			header: () => <div>Marca</div>,
-			cell: ({ row }) => <div>{row.getValue("marca")}</div>,
-		},
 		{
 			id: "actions",
 			enableHiding: false,
 			header: () => <div>Ações</div>,
 			cell: ({ row }) => {
 				const item = row.original;
-				const text = `Placa: ${item.placa}\nMarca: ${item.marca}\nModelo: ${item.modelo}\nCor: ${item.cor}\nDisponibilidade: ${item.disponibilidade}`;
+				const text = `Modelo: ${item.nome}\nMarca: ${item.marca}\nCilindradas: ${item.cilindrada}\nQuantidade de motos: ${item.quantidade_motos}`;
 
 				return (
 					<DropdownMenu>
@@ -177,13 +171,6 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 								Copiar informações
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								className="flex gap-2"
-								onClick={() => navigate(item.id)}
-							>
-								<Eye className="size-4" />
-								Ver detalhes
-							</DropdownMenuItem>
 							<DropdownMenuItem
 								className="flex gap-2"
 								onClick={() => navigate(`edicao/${item.id}`)}
@@ -224,9 +211,9 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 	});
 
 	function formataDetalhesPaginacao() {
-		const totalMotos = table.getFilteredRowModel().rows.length;
+		const totalModelos = table.getFilteredRowModel().rows.length;
 
-		if (totalMotos === 0) return;
+		if (totalModelos === 0) return;
 
 		const paginacao = table.options?.state?.pagination;
 		const tamanhoPagina = paginacao?.pageSize || 10;
@@ -234,21 +221,21 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 		const inicioContagem = (paginaAtual - 1) * tamanhoPagina + 1;
 		const fimContagem = Math.min(
 			inicioContagem + tamanhoPagina - 1,
-			totalMotos
+			totalModelos
 		);
-		const plural = totalMotos > 1 ? "s" : "";
+		const plural = totalModelos > 1 ? "s" : "";
 
-		return `Exibindo ${inicioContagem}-${fimContagem} de ${totalMotos} moto${plural}`;
+		return `Exibindo ${inicioContagem}-${fimContagem} de ${totalModelos} modelo${plural}`;
 	}
 
 	return (
 		<div className="w-full container">
 			<div className="flex items-center justify-between py-4">
 				<Input
-					placeholder="Filtrar por placa..."
-					value={(table.getColumn("placa")?.getFilterValue() as string) ?? ""}
+					placeholder="Filtrar por modelo..."
+					value={(table.getColumn("nome")?.getFilterValue() as string) ?? ""}
 					onChange={(event) =>
-						table.getColumn("placa")?.setFilterValue(event.target.value)
+						table.getColumn("nome")?.setFilterValue(event.target.value)
 					}
 					className="max-w-sm"
 				/>
@@ -257,7 +244,7 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 					to="cadastro"
 				>
 					<PlusIcon className="size-4" />
-					Cadastrar moto
+					Cadastrar modelo
 				</Link>
 			</div>
 			<div className="rounded-md border">
@@ -341,8 +328,9 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 						<AlertDialogTitle>Tem certeza que deseja excluir?</AlertDialogTitle>
 						<AlertDialogDescription>
 							Essa ação não pode ser revertida. Isso irá deletar permanentemente
-							a moto de placa <strong>{itemExcluir.placa}</strong> e todas suas
-							informações associadas de nossos servidores.
+							o modelo <strong>{itemExcluir.nome}</strong> e suas
+							{" " + itemExcluir.quantidade_motos + " "}
+							motos associadas de nossos servidores.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
@@ -351,7 +339,7 @@ export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 						</AlertDialogCancel>
 						<AlertDialogAction
 							className={buttonVariants({ variant: "destructive" })}
-							onClick={() => handleExcluirMoto(itemExcluir)}
+							onClick={() => handleExcluirModelo(itemExcluir)}
 						>
 							Excluir
 						</AlertDialogAction>

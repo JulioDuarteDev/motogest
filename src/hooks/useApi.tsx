@@ -26,7 +26,7 @@ export default function useApi() {
 		return data;
 	}
 
-	const deleteById = async (table: string, id: string) => {
+	const deleteById = async (table: string, id: string | number) => {
 		const { error } = await supabase.from(table).delete().eq("id", id);
 
 		if (error) throw error;
