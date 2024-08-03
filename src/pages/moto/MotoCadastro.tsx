@@ -69,9 +69,9 @@ export function MotoCadastro() {
 				const { modelo, financiamento, ...resto } = moto;
 
 				// Adequa o objeto para o formulário
-				modelo['modelo'] = modelo['id']
-				delete modelo['id']
-				
+				modelo["modelo"] = modelo["id"];
+				delete modelo["id"];
+
 				form.reset({ ...modelo, ...financiamento, ...resto });
 			}
 		} catch (error) {
@@ -95,14 +95,31 @@ export function MotoCadastro() {
 	}
 
 	async function postMoto(form) {
-		const formTratado = Object.fromEntries(
-			Object.entries(form).map(([key, value]) => [`_${key}`, value])
-		);
 		try {
-			await rpc("moto_chain_insert", formTratado);
+			await rpc("moto_chain_insert", form);
 			toast({
 				title: "Sucesso!",
-				description: `Moto de placa "${form.placa}" cadastrada com sucesso!`,
+				description: `Moto de placa "${form._placa}" cadastrada com sucesso!`,
+				variant: "success",
+			});
+
+			navigate("/gestao/moto");
+		} catch (error) {
+			toast({
+				title: "Ops!",
+				description: error.message,
+				variant: "destructive",
+			});
+		}
+	}
+
+	async function updateMoto(form) {
+		try {
+			form._moto_id = id;
+			await rpc("moto_chain_update", form);
+			toast({
+				title: "Sucesso!",
+				description: `Moto de placa "${form.placa}" atualizada com sucesso!`,
 				variant: "success",
 			});
 
@@ -135,12 +152,14 @@ export function MotoCadastro() {
 	});
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		isEdicao ? console.log(values) : postMoto(values);
+		const valuesTratados = Object.fromEntries(
+			Object.entries(values).map(([key, value]) => [`_${key}`, value])
+		);
+		isEdicao ? updateMoto(valuesTratados) : postMoto(valuesTratados);
 	}
 
-	
 	return (
-		<div className="container">
+		<div className="container space-y-4">
 			<h2>{isEdicao ? "Edição" : "Cadastro"} de moto</h2>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
