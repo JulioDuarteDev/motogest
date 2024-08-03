@@ -43,7 +43,7 @@ const formSchema = z.object({
 	cores: z
 		.array(
 			z.object({
-				nome: z.string().min(3, "Informe uma cor válida"),
+				cor: z.string().min(3, "Informe uma cor válida"),
 				url: z
 					.string()
 					.url("Informe uma URL válida")
@@ -56,7 +56,7 @@ const formSchema = z.object({
 
 export function ModeloCadastro() {
 	const navigate = useNavigate();
-	const { list, rpc } = useApi();
+	const { list, rpc, getById } = useApi();
 	const [marcas, setMarcas] = useState<Marca[]>([]);
 
 	const { id } = useParams();
@@ -66,6 +66,14 @@ export function ModeloCadastro() {
 		try {
 			const data = await list("marcas");
 			setMarcas(data as Marca[]);
+
+			if (isEdicao) {
+				const modelo = await getById("modelos", id);
+				const variacoes = await list("variacoes_modelos")
+				const variacoesFiltradas = variacoes.filter((item) => item.modelo == id)
+				form.reset({...modelo, cores: variacoesFiltradas});
+				
+			}
 		} catch (error) {
 			toast({
 				title: "Ops!",
@@ -75,7 +83,7 @@ export function ModeloCadastro() {
 		}
 	}
 
-	async function postModelo(form: object) {
+	async function postModelo(form) {
 		try {
 			await rpc("modelo_chain_insert", form);
 
@@ -95,6 +103,27 @@ export function ModeloCadastro() {
 		}
 	}
 
+	async function updateModelo(form) {
+		try {
+			form._modelo_id = id;
+			await rpc("modelo_chain_update", form);
+
+			toast({
+				title: "Sucesso!",
+				description: `Modelo "${form._nome}" atualizado com sucesso!`,
+				variant: "success",
+			});
+
+			navigate("/gestao/modelo");
+		} catch (error) {
+			toast({
+				title: "Ops!",
+				description: error.message,
+				variant: "destructive",
+			});
+		}
+	}
+
 	useEffect(() => {
 		getMarcas();
 	}, []);
@@ -103,7 +132,7 @@ export function ModeloCadastro() {
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			nome: "",
-			cores: [{ nome: "", url: "" }],
+			cores: [{ cor: "", url: "" }],
 			cilindrada: "",
 		},
 	});
@@ -119,8 +148,8 @@ export function ModeloCadastro() {
 		const valuesTratados = Object.fromEntries(
 			Object.entries(values).map(([key, value]) => [`_${key}`, value])
 		);
-		
-		isEdicao ? console.log(valuesTratados) : postModelo(valuesTratados);
+
+		isEdicao ? updateModelo(valuesTratados) : postModelo(valuesTratados);
 	}
 
 	return (
@@ -200,7 +229,7 @@ export function ModeloCadastro() {
 							<div key={field.id} className="flex flex-col sm:flex-row gap-4">
 								<FormField
 									control={form.control}
-									name={`cores.${index}.nome`}
+									name={`cores.${index}.cor`}
 									render={({ field }) => (
 										<FormItem className="flex-1">
 											<FormLabel>Cor {index + 1}</FormLabel>
@@ -247,7 +276,7 @@ export function ModeloCadastro() {
 							className="flex items-center gap-2 w-fit self-center"
 							onClick={() =>
 								append({
-									nome: "",
+									cor: "",
 									url: "",
 								})
 							}
