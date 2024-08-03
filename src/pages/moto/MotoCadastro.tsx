@@ -26,79 +26,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import useApi from "@/hooks/useApi";
 import Marca from "@/interfaces/Marca";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Modelo from "@/interfaces/Modelo";
 import Variacao from "@/interfaces/Variacao";
 import Disponibilidade from "@/interfaces/Disponibilidade";
-
-const numeroValido = "Informe um número válido";
-const valorValido = "Informe um valor válido";
-const diaValido = "Informe um dia válido";
-const anoValido = "Informe um ano válido";
-
-const schemaGeral = z.object({
-	modelo: z.coerce.number({
-		message: "É necessário selecionar um modelo",
-	}),
-	marca: z.string({
-		message: "É necessário selecionar uma marca",
-	}),
-	variacao: z.coerce.number({
-		message: "É necessário selecionar uma cor",
-	}),
-	disponibilidade: z.coerce.number({
-		message: "É necessário selecionar a disponibilidade",
-	}),
-	placa: z
-		.string({ message: "É necessário informar a placa" })
-		.length(7, "Informe uma placa válida"),
-	ano: z.coerce
-		.number({ message: anoValido })
-		.positive(anoValido)
-		.min(1000, anoValido),
-
-	quilometragem: z.coerce
-		.number({ message: numeroValido })
-		.nonnegative(numeroValido),
-	observacoes: z
-		.string()
-		.max(1000, "O campo observações deve ter no máximo 1000 caracteres")
-		.optional(),
-});
-
-const schemaFinanciamento = z
-	.object({
-		quitado: z
-			.string({
-				message: "É necessário selecionar a situação financeira",
-			})
-			.transform((val) => val === "true"),
-		valor: z.coerce.number({ message: valorValido }).positive(valorValido),
-		valor_parcela: z.coerce.number({ message: valorValido }),
-		parcelas_restantes: z.coerce.number({ message: numeroValido }),
-		dia_vencimento: z.coerce.number({ message: diaValido }),
-	})
-	.superRefine((values, ctx) => {
-		if (values.quitado) return;
-
-		const campos = [
-			{ campo: "valor_parcela", mensagem: valorValido },
-			{ campo: "parcelas_restantes", mensagem: numeroValido },
-			{ campo: "dia_vencimento", mensagem: diaValido },
-		];
-
-		campos.forEach(({ campo, mensagem }) => {
-			if (!values[campo]) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message: mensagem,
-					path: [campo],
-				});
-			}
-		});
-	});
-
-const formSchema = z.intersection(schemaGeral, schemaFinanciamento);
+import formSchema from "@/components/forms/cadastro_moto/formSchema";
 
 const situacoes = [
 	{ nome: "Quitada", id: "1", value: true },
@@ -116,6 +48,9 @@ export function MotoCadastro() {
 	const [disponibilidade, setDisponibilidade] = useState<Disponibilidade[]>([]);
 	const [showFinanciamento, setShowFinanciamento] = useState(false);
 
+	const { id } = useParams();
+	const isEdicao = !!id;
+
 	async function getDadosIniciais() {
 		try {
 			const data = await rpc("get_data_form_moto");
@@ -125,6 +60,20 @@ export function MotoCadastro() {
 			setTodosModelos(modelos as Modelo[]);
 			setTodasCores(variacoes_modelos as Variacao[]);
 			setDisponibilidade(disponibilidade as Disponibilidade[]);
+
+			if (isEdicao) {
+				setModelos(modelos);
+				setCores(variacoes_modelos);
+
+				const moto = await rpc("moto_chain_get", { moto_id: id });
+				const { modelo, financiamento, ...resto } = moto;
+
+				// Adequa o objeto para o formulário
+				modelo["modelo"] = modelo["id"];
+				delete modelo["id"];
+
+				form.reset({ ...modelo, ...financiamento, ...resto });
+			}
 		} catch (error) {
 			toast({
 				title: "Ops!",
@@ -133,27 +82,44 @@ export function MotoCadastro() {
 			});
 		}
 	}
-	function handleChangeModelo(value) {
-		const coresFiltradas = todasCores.filter((cor) => cor.modelo == value);
+	function handleChangeModelo(value: Modelo["id"]) {
+		const coresFiltradas = todasCores.filter((cor) => cor.modelo === value);
 		setCores(coresFiltradas);
 	}
 
-	function handleChangeMarca(value: string) {
+	function handleChangeMarca(value: Marca["nome"]) {
 		const modelosFiltrados = todosModelos.filter(
 			(modelo) => modelo.marca === value
 		);
 		setModelos(modelosFiltrados);
 	}
 
-	async function postMoto(form: object) {
-		const formTratado = Object.fromEntries(
-			Object.entries(form).map(([key, value]) => [`_${key}`, value])
-		);
+	async function postMoto(form) {
 		try {
-			await rpc("moto_chain_insert", formTratado);
+			await rpc("moto_chain_insert", form);
 			toast({
 				title: "Sucesso!",
-				description: `Moto de placa "${form.placa}" cadastrada com sucesso!`,
+				description: `Moto de placa "${form._placa}" cadastrada com sucesso!`,
+				variant: "success",
+			});
+
+			navigate("/gestao/moto");
+		} catch (error) {
+			toast({
+				title: "Ops!",
+				description: error.message,
+				variant: "destructive",
+			});
+		}
+	}
+
+	async function updateMoto(form) {
+		try {
+			form._moto_id = id;
+			await rpc("moto_chain_update", form);
+			toast({
+				title: "Sucesso!",
+				description: `Moto de placa "${form.placa}" atualizada com sucesso!`,
 				variant: "success",
 			});
 
@@ -186,15 +152,15 @@ export function MotoCadastro() {
 	});
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		isCadastro ? postMoto(values) : console.log(values);
+		const valuesTratados = Object.fromEntries(
+			Object.entries(values).map(([key, value]) => [`_${key}`, value])
+		);
+		isEdicao ? updateMoto(valuesTratados) : postMoto(valuesTratados);
 	}
 
-	const isCadastro = true;
 	return (
-		<div className="container">
-			<h2>
-				{isCadastro ? "Cadastro" : "Edição"} de moto
-			</h2>
+		<div className="container space-y-4">
+			<h2>{isEdicao ? "Edição" : "Cadastro"} de moto</h2>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
 					<fieldset className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 rounded-lg border p-4">
@@ -213,6 +179,7 @@ export function MotoCadastro() {
 											handleChangeMarca(value);
 										}}
 										defaultValue={field.value}
+										value={field.value}
 									>
 										<FormControl>
 											<SelectTrigger>
@@ -246,6 +213,7 @@ export function MotoCadastro() {
 											handleChangeModelo(value);
 										}}
 										defaultValue={field.value}
+										value={field.value}
 										disabled={modelos.length === 0}
 									>
 										<FormControl>
@@ -256,7 +224,7 @@ export function MotoCadastro() {
 										<SelectContent>
 											{modelos.map((item) => {
 												return (
-													<SelectItem key={item.id} value={item.id.toString()}>
+													<SelectItem key={item.id} value={item.id}>
 														{item.nome}
 													</SelectItem>
 												);
@@ -277,6 +245,7 @@ export function MotoCadastro() {
 									<Select
 										onValueChange={field.onChange}
 										defaultValue={field.value}
+										value={field.value}
 										disabled={modelos.length === 0 || cores.length === 0}
 									>
 										<FormControl>
@@ -287,7 +256,7 @@ export function MotoCadastro() {
 										<SelectContent>
 											{cores.map((item) => {
 												return (
-													<SelectItem key={item.id} value={item.id.toString()}>
+													<SelectItem key={item.id} value={item.id}>
 														{item.cor}
 													</SelectItem>
 												);
@@ -354,6 +323,7 @@ export function MotoCadastro() {
 									<Select
 										onValueChange={field.onChange}
 										defaultValue={field.value}
+										value={field.value}
 									>
 										<FormControl>
 											<SelectTrigger>
@@ -363,7 +333,7 @@ export function MotoCadastro() {
 										<SelectContent>
 											{disponibilidade.map((item) => {
 												return (
-													<SelectItem key={item.id} value={item.id.toString()}>
+													<SelectItem key={item.id} value={item.id}>
 														{item.nome}
 													</SelectItem>
 												);
@@ -410,6 +380,7 @@ export function MotoCadastro() {
 											setShowFinanciamento(value === "false");
 										}}
 										defaultValue={field.value}
+										value={field.value}
 									>
 										<FormControl>
 											<SelectTrigger>
@@ -502,8 +473,7 @@ export function MotoCadastro() {
 							</>
 						)}
 					</fieldset>
-
-					<Button type="submit">{isCadastro ? "Cadastrar" : "Editar"}</Button>
+					<Button type="submit">{isEdicao ? "Editar" : "Cadastrar"}</Button>
 				</form>
 			</Form>
 		</div>

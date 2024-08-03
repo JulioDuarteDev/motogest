@@ -1,7 +1,7 @@
 import Variacao from "./Variacao";
 
 export default interface Modelo {
-	id: number;
+	id: string;
 	nome: string;
 	cilindrada: string;
 	marca: string;
