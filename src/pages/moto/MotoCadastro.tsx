@@ -60,6 +60,20 @@ export function MotoCadastro() {
 			setTodosModelos(modelos as Modelo[]);
 			setTodasCores(variacoes_modelos as Variacao[]);
 			setDisponibilidade(disponibilidade as Disponibilidade[]);
+
+			if (isEdicao) {
+				setModelos(modelos);
+				setCores(variacoes_modelos);
+
+				const moto = await rpc("moto_chain_get", { moto_id: id });
+				const { modelo, financiamento, ...resto } = moto;
+
+				// Adequa o objeto para o formulário
+				modelo['modelo'] = modelo['id']
+				delete modelo['id']
+				
+				form.reset({ ...modelo, ...financiamento, ...resto });
+			}
 		} catch (error) {
 			toast({
 				title: "Ops!",
@@ -68,7 +82,7 @@ export function MotoCadastro() {
 			});
 		}
 	}
-	function handleChangeModelo(value: number) {
+	function handleChangeModelo(value: string) {
 		const coresFiltradas = todasCores.filter((cor) => cor.modelo == value);
 		setCores(coresFiltradas);
 	}
@@ -109,14 +123,14 @@ export function MotoCadastro() {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			placa: undefined,
-			ano: undefined,
-			quilometragem: undefined,
-			valor: undefined,
-			valor_parcela: undefined,
-			dia_vencimento: undefined,
-			parcelas_restantes: undefined,
-			observacoes: undefined,
+			placa: "",
+			ano: "",
+			quilometragem: "",
+			valor: "",
+			valor_parcela: "",
+			dia_vencimento: "",
+			parcelas_restantes: "",
+			observacoes: "",
 		},
 	});
 
@@ -146,6 +160,7 @@ export function MotoCadastro() {
 											handleChangeMarca(value);
 										}}
 										defaultValue={field.value}
+										value={field.value}
 									>
 										<FormControl>
 											<SelectTrigger>
@@ -179,6 +194,7 @@ export function MotoCadastro() {
 											handleChangeModelo(value);
 										}}
 										defaultValue={field.value}
+										value={field.value}
 										disabled={modelos.length === 0}
 									>
 										<FormControl>
@@ -189,7 +205,7 @@ export function MotoCadastro() {
 										<SelectContent>
 											{modelos.map((item) => {
 												return (
-													<SelectItem key={item.id} value={item.id.toString()}>
+													<SelectItem key={item.id} value={item.id}>
 														{item.nome}
 													</SelectItem>
 												);
@@ -210,6 +226,7 @@ export function MotoCadastro() {
 									<Select
 										onValueChange={field.onChange}
 										defaultValue={field.value}
+										value={field.value}
 										disabled={modelos.length === 0 || cores.length === 0}
 									>
 										<FormControl>
@@ -220,7 +237,7 @@ export function MotoCadastro() {
 										<SelectContent>
 											{cores.map((item) => {
 												return (
-													<SelectItem key={item.id} value={item.id.toString()}>
+													<SelectItem key={item.id} value={item.id}>
 														{item.cor}
 													</SelectItem>
 												);
@@ -287,6 +304,7 @@ export function MotoCadastro() {
 									<Select
 										onValueChange={field.onChange}
 										defaultValue={field.value}
+										value={field.value}
 									>
 										<FormControl>
 											<SelectTrigger>
@@ -296,7 +314,7 @@ export function MotoCadastro() {
 										<SelectContent>
 											{disponibilidade.map((item) => {
 												return (
-													<SelectItem key={item.id} value={item.id.toString()}>
+													<SelectItem key={item.id} value={item.id}>
 														{item.nome}
 													</SelectItem>
 												);
@@ -343,6 +361,7 @@ export function MotoCadastro() {
 											setShowFinanciamento(value === "false");
 										}}
 										defaultValue={field.value}
+										value={field.value}
 									>
 										<FormControl>
 											<SelectTrigger>
