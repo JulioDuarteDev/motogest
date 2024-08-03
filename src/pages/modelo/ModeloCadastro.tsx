@@ -81,7 +81,7 @@ export function ModeloCadastro() {
 
 			toast({
 				title: "Sucesso!",
-				description: `Modelo "${form.nome}" cadastrado com sucesso!`,
+				description: `Modelo "${form._nome}" cadastrado com sucesso!`,
 				variant: "success",
 			});
 			
