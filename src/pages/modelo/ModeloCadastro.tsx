@@ -27,20 +27,20 @@ import {
 import { useEffect, useState } from "react";
 import useApi from "@/hooks/useApi";
 import Marca from "@/interfaces/Marca";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const formSchema = z.object({
-	_nome: z.string().min(2, {
+	nome: z.string().min(2, {
 		message: "Informe um modelo válido",
 	}),
-	_marca: z.string({
+	marca: z.string({
 		required_error: "É necessário selecionar uma marca",
 	}),
-	_cilindrada: z.coerce
+	cilindrada: z.coerce
 		.number({ message: "Informe um número válido" })
 		.int("Deve ser um número inteiro")
 		.positive("Deve ser um número positivo"),
-	_cores: z
+	cores: z
 		.array(
 			z.object({
 				nome: z.string().min(3, "Informe uma cor válida"),
@@ -58,6 +58,9 @@ export function ModeloCadastro() {
 	const navigate = useNavigate();
 	const { list, rpc } = useApi();
 	const [marcas, setMarcas] = useState<Marca[]>([]);
+
+	const { id } = useParams();
+	const isEdicao = !!id;
 
 	async function getMarcas() {
 		try {
@@ -78,7 +81,7 @@ export function ModeloCadastro() {
 
 			toast({
 				title: "Sucesso!",
-				description: `Modelo "${form._nome}" cadastrado com sucesso!`,
+				description: `Modelo "${form.nome}" cadastrado com sucesso!`,
 				variant: "success",
 			});
 			
@@ -99,9 +102,9 @@ export function ModeloCadastro() {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			_nome: "",
-			_cores: [{ nome: "", url: "" }],
-			_cilindrada: "",
+			nome: "",
+			cores: [{ nome: "", url: "" }],
+			cilindrada: "",
 		},
 	});
 
@@ -109,19 +112,20 @@ export function ModeloCadastro() {
 
 	const { append, remove, fields } = useFieldArray({
 		control,
-		name: "_cores",
+		name: "cores",
 	});
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		isCadastro ? postModelo(values) : console.log(values);
+		const valuesTratados = Object.fromEntries(
+			Object.entries(values).map(([key, value]) => [`_${key}`, value])
+		);
+		
+		isEdicao ? console.log(valuesTratados) : postModelo(valuesTratados);
 	}
 
-	const isCadastro = true;
 	return (
 		<div className="container space-y-4">
-			<h2>
-				{isCadastro ? "Cadastro" : "Edição"} de modelo de moto
-			</h2>
+			<h2>{isEdicao ? "Edição" : "Cadastro"} de modelo de moto</h2>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
 					<fieldset className="grid gap-4 rounded-lg border p-4">
@@ -130,7 +134,7 @@ export function ModeloCadastro() {
 						</legend>
 						<FormField
 							control={form.control}
-							name="_marca"
+							name="marca"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Marca</FormLabel>
@@ -157,7 +161,7 @@ export function ModeloCadastro() {
 
 						<FormField
 							control={form.control}
-							name="_nome"
+							name="nome"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Modelo</FormLabel>
@@ -171,7 +175,7 @@ export function ModeloCadastro() {
 
 						<FormField
 							control={form.control}
-							name="_cilindrada"
+							name="cilindrada"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Cilindradas</FormLabel>
@@ -196,7 +200,7 @@ export function ModeloCadastro() {
 							<div key={field.id} className="flex flex-col sm:flex-row gap-4">
 								<FormField
 									control={form.control}
-									name={`_cores.${index}.nome`}
+									name={`cores.${index}.nome`}
 									render={({ field }) => (
 										<FormItem className="flex-1">
 											<FormLabel>Cor {index + 1}</FormLabel>
@@ -209,7 +213,7 @@ export function ModeloCadastro() {
 								/>
 								<FormField
 									control={form.control}
-									name={`_cores.${index}.url`}
+									name={`cores.${index}.url`}
 									render={({ field }) => (
 										<FormItem className="flex-1">
 											<FormLabel>URL da imagem {index + 1}</FormLabel>
@@ -253,7 +257,7 @@ export function ModeloCadastro() {
 						</Button>
 					</fieldset>
 
-					<Button type="submit">{isCadastro ? "Cadastrar" : "Editar"}</Button>
+					<Button type="submit">{isEdicao ? "Editar" : "Cadastrar"}</Button>
 				</form>
 			</Form>
 		</div>
