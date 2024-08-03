@@ -1,4 +1,4 @@
 export default interface Disponibilidade { 
-  id: number,
+  id: string,
   nome: string
 }

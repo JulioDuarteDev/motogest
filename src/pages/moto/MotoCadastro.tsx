@@ -82,19 +82,19 @@ export function MotoCadastro() {
 			});
 		}
 	}
-	function handleChangeModelo(value: string) {
-		const coresFiltradas = todasCores.filter((cor) => cor.modelo == value);
+	function handleChangeModelo(value: Modelo["id"]) {
+		const coresFiltradas = todasCores.filter((cor) => cor.modelo === value);
 		setCores(coresFiltradas);
 	}
 
-	function handleChangeMarca(value: string) {
+	function handleChangeMarca(value: Marca["nome"]) {
 		const modelosFiltrados = todosModelos.filter(
 			(modelo) => modelo.marca === value
 		);
 		setModelos(modelosFiltrados);
 	}
 
-	async function postMoto(form: object) {
+	async function postMoto(form) {
 		const formTratado = Object.fromEntries(
 			Object.entries(form).map(([key, value]) => [`_${key}`, value])
 		);

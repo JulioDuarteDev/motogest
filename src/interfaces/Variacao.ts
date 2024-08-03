@@ -1,6 +1,6 @@
 export default interface Variacao {
-	id: number;
+	id: string;
 	cor: string;
 	url: string;
-	modelo: number;
+	modelo: string;
 }
