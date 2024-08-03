@@ -6,16 +6,16 @@ const diaValido = "Informe um dia válido";
 const anoValido = "Informe um ano válido";
 
 const schemaGeral = z.object({
-	modelo: z.coerce.number({
+	modelo: z.string({
 		message: "É necessário selecionar um modelo",
 	}),
 	marca: z.string({
 		message: "É necessário selecionar uma marca",
 	}),
-	variacao: z.coerce.number({
+	variacao: z.string({
 		message: "É necessário selecionar uma cor",
 	}),
-	disponibilidade: z.coerce.number({
+	disponibilidade: z.string({
 		message: "É necessário selecionar a disponibilidade",
 	}),
 	placa: z
