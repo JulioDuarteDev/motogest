@@ -27,23 +27,23 @@ import {
 import { useEffect, useState } from "react";
 import useApi from "@/hooks/useApi";
 import Marca from "@/interfaces/Marca";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const formSchema = z.object({
-	_nome: z.string().min(2, {
+	nome: z.string().min(2, {
 		message: "Informe um modelo válido",
 	}),
-	_marca: z.string({
+	marca: z.string({
 		required_error: "É necessário selecionar uma marca",
 	}),
-	_cilindrada: z.coerce
+	cilindrada: z.coerce
 		.number({ message: "Informe um número válido" })
 		.int("Deve ser um número inteiro")
 		.positive("Deve ser um número positivo"),
-	_cores: z
+	cores: z
 		.array(
 			z.object({
-				nome: z.string().min(3, "Informe uma cor válida"),
+				cor: z.string().min(3, "Informe uma cor válida"),
 				url: z
 					.string()
 					.url("Informe uma URL válida")
@@ -59,10 +59,18 @@ export function ModeloCadastro() {
 	const { list, rpc } = useApi();
 	const [marcas, setMarcas] = useState<Marca[]>([]);
 
+	const { id } = useParams();
+	const isEdicao = !!id;
+
 	async function getMarcas() {
 		try {
 			const data = await list("marcas");
 			setMarcas(data as Marca[]);
+
+			if (isEdicao) {
+				const data = await rpc("modelo_chain_get", { modelo_id: id });
+				form.reset({...data})
+			}
 		} catch (error) {
 			toast({
 				title: "Ops!",
@@ -72,7 +80,7 @@ export function ModeloCadastro() {
 		}
 	}
 
-	async function postModelo(form: object) {
+	async function postModelo(form) {
 		try {
 			await rpc("modelo_chain_insert", form);
 
@@ -92,6 +100,27 @@ export function ModeloCadastro() {
 		}
 	}
 
+	async function updateModelo(form) {
+		try {
+			form._modelo_id = id;
+			await rpc("modelo_chain_update", form);
+
+			toast({
+				title: "Sucesso!",
+				description: `Modelo "${form._nome}" atualizado com sucesso!`,
+				variant: "success",
+			});
+
+			navigate("/gestao/modelo");
+		} catch (error) {
+			toast({
+				title: "Ops!",
+				description: error.message,
+				variant: "destructive",
+			});
+		}
+	}
+
 	useEffect(() => {
 		getMarcas();
 	}, []);
@@ -99,9 +128,9 @@ export function ModeloCadastro() {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			_nome: "",
-			_cores: [{ nome: "", url: "" }],
-			_cilindrada: "",
+			nome: "",
+			cores: [{ cor: "", url: "" }],
+			cilindrada: "",
 		},
 	});
 
@@ -109,19 +138,20 @@ export function ModeloCadastro() {
 
 	const { append, remove, fields } = useFieldArray({
 		control,
-		name: "_cores",
+		name: "cores",
 	});
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		isCadastro ? postModelo(values) : console.log(values);
+		const valuesTratados = Object.fromEntries(
+			Object.entries(values).map(([key, value]) => [`_${key}`, value])
+		);
+
+		isEdicao ? updateModelo(valuesTratados) : postModelo(valuesTratados);
 	}
 
-	const isCadastro = true;
 	return (
 		<div className="container space-y-4">
-			<h2>
-				{isCadastro ? "Cadastro" : "Edição"} de modelo de moto
-			</h2>
+			<h2>{isEdicao ? "Edição" : "Cadastro"} de modelo de moto</h2>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
 					<fieldset className="grid gap-4 rounded-lg border p-4">
@@ -130,7 +160,7 @@ export function ModeloCadastro() {
 						</legend>
 						<FormField
 							control={form.control}
-							name="_marca"
+							name="marca"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Marca</FormLabel>
@@ -157,7 +187,7 @@ export function ModeloCadastro() {
 
 						<FormField
 							control={form.control}
-							name="_nome"
+							name="nome"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Modelo</FormLabel>
@@ -171,7 +201,7 @@ export function ModeloCadastro() {
 
 						<FormField
 							control={form.control}
-							name="_cilindrada"
+							name="cilindrada"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Cilindradas</FormLabel>
@@ -196,7 +226,7 @@ export function ModeloCadastro() {
 							<div key={field.id} className="flex flex-col sm:flex-row gap-4">
 								<FormField
 									control={form.control}
-									name={`_cores.${index}.nome`}
+									name={`cores.${index}.cor`}
 									render={({ field }) => (
 										<FormItem className="flex-1">
 											<FormLabel>Cor {index + 1}</FormLabel>
@@ -209,7 +239,7 @@ export function ModeloCadastro() {
 								/>
 								<FormField
 									control={form.control}
-									name={`_cores.${index}.url`}
+									name={`cores.${index}.url`}
 									render={({ field }) => (
 										<FormItem className="flex-1">
 											<FormLabel>URL da imagem {index + 1}</FormLabel>
@@ -243,7 +273,7 @@ export function ModeloCadastro() {
 							className="flex items-center gap-2 w-fit self-center"
 							onClick={() =>
 								append({
-									nome: "",
+									cor: "",
 									url: "",
 								})
 							}
@@ -253,7 +283,7 @@ export function ModeloCadastro() {
 						</Button>
 					</fieldset>
 
-					<Button type="submit">{isCadastro ? "Cadastrar" : "Editar"}</Button>
+					<Button type="submit">{isEdicao ? "Editar" : "Cadastrar"}</Button>
 				</form>
 			</Form>
 		</div>

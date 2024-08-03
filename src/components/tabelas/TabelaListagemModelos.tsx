@@ -328,9 +328,12 @@ export function TabelaListagemModelos({ data }: TabelaListagemModelosProps) {
 						<AlertDialogTitle>Tem certeza que deseja excluir?</AlertDialogTitle>
 						<AlertDialogDescription>
 							Essa ação não pode ser revertida. Isso irá deletar permanentemente
-							o modelo <strong>{itemExcluir.nome}</strong> e suas
-							{" " + itemExcluir.quantidade_motos + " "}
-							motos associadas de nossos servidores.
+							o modelo <strong>{itemExcluir.nome}</strong>
+							{itemExcluir.quantidade_motos > 0 &&
+								"e suas " +
+									itemExcluir.quantidade_motos +
+									" motos associadas"}{" "}
+							de nossos servidores.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
