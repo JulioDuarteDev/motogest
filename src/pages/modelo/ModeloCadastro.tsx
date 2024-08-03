@@ -56,7 +56,7 @@ const formSchema = z.object({
 
 export function ModeloCadastro() {
 	const navigate = useNavigate();
-	const { list, rpc, getById } = useApi();
+	const { list, rpc } = useApi();
 	const [marcas, setMarcas] = useState<Marca[]>([]);
 
 	const { id } = useParams();
@@ -68,11 +68,8 @@ export function ModeloCadastro() {
 			setMarcas(data as Marca[]);
 
 			if (isEdicao) {
-				const modelo = await getById("modelos", id);
-				const variacoes = await list("variacoes_modelos")
-				const variacoesFiltradas = variacoes.filter((item) => item.modelo == id)
-				form.reset({...modelo, cores: variacoesFiltradas});
-				
+				const data = await rpc("modelo_chain_get", { modelo_id: id });
+				form.reset({...data})
 			}
 		} catch (error) {
 			toast({
