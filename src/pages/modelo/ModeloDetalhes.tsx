@@ -1,8 +1,18 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { SquarePen, Trash2Icon } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import useApi from "@/hooks/useApi";
 import {
 	Carousel,
@@ -15,21 +25,34 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export function ModeloDetalhes() {
 	const [dados, setDados] = useState({});
+	const [openAlert, setOpenAlert] = useState(false);
 	const { id } = useParams();
 	const { rpc } = useApi();
+	const navigate = useNavigate();
+	const { deleteById } = useApi();
 
 	function formataData(data: string) {
 		const date = new Date(data);
 
-		const opcoes = {
-			year: "numeric",
-			month: "2-digit",
-			day: "2-digit",
-			hour: "2-digit",
-			minute: "2-digit",
-		};
+		return date.toLocaleDateString("pt-BR", {hour: '2-digit', minute: '2-digit'});
+	}
 
-		return date.toLocaleDateString("pt-BR", opcoes);
+	async function handleExcluirModelo() {
+		try {
+			await deleteById("modelos", id);
+			navigate("/gestao/modelo");
+			toast({
+				title: "Sucesso!",
+				description: `Modelo "${dados.nome}" excluído com sucesso!`,
+				variant: "success",
+			});
+		} catch (error) {
+			toast({
+				title: "Ops!",
+				description: error.message,
+				variant: "destructive",
+			});
+		}
 	}
 
 	async function getDadosIniciais() {
@@ -73,7 +96,14 @@ export function ModeloDetalhes() {
 								<SquarePen className="size-4" />
 								Editar
 							</Link>
-							<Button size="sm" variant="secondary" className="flex gap-2">
+							<Button
+								size="sm"
+								variant="secondary"
+								className="flex gap-2"
+								onClick={() => {
+									setOpenAlert(true);
+								}}
+							>
 								<Trash2Icon className="size-4 " />
 								Excluir
 							</Button>
@@ -99,7 +129,7 @@ export function ModeloDetalhes() {
 								</div>
 								<div>
 									<dt className="text-muted-foreground">Quantidade de motos</dt>
-									<dd>{dados.motos?.length}</dd>
+									<dd>{dados.motos?.length || 0}</dd>
 								</div>
 								<div>
 									<dt className="text-muted-foreground">Cores disponíveis</dt>
@@ -143,6 +173,33 @@ export function ModeloDetalhes() {
 					</div>
 				</main>
 			</div>
+			<AlertDialog open={openAlert}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Tem certeza que deseja excluir?</AlertDialogTitle>
+						<AlertDialogDescription>
+							Essa ação não pode ser revertida. Isso irá deletar permanentemente
+							o modelo <strong>{dados.nome}</strong>
+							{dados.motos?.length > 0 &&
+								" e suas " +
+									dados.motos?.length +
+									" motos associadas"}{" "}
+							de nossos servidores.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={() => setOpenAlert(false)}>
+							Cancelar
+						</AlertDialogCancel>
+						<AlertDialogAction
+							className={buttonVariants({ variant: "destructive" })}
+							onClick={() => handleExcluirModelo()}
+						>
+							Excluir
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }
