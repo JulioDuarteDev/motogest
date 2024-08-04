@@ -12,6 +12,7 @@ import {
 import {
 	ArrowUpDown,
 	ClipboardPen,
+	Eye,
 	MoreHorizontal,
 	PlusIcon,
 	SquarePen,
@@ -171,6 +172,13 @@ export function TabelaListagemModelos({ data }: TabelaListagemModelosProps) {
 								Copiar informações
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
+							<DropdownMenuItem
+								className="flex gap-2"
+								onClick={() => navigate(item.id)}
+							>
+								<Eye className="size-4" />
+								Ver detalhes
+							</DropdownMenuItem>
 							<DropdownMenuItem
 								className="flex gap-2"
 								onClick={() => navigate(`edicao/${item.id}`)}
