@@ -46,9 +46,7 @@ const formSchema = z.object({
 				cor: z.string().min(3, "Informe uma cor válida"),
 				url: z
 					.string()
-					.url("Informe uma URL válida")
-					.optional()
-					.or(z.literal("")),
+					.url("Informe uma URL válida"),
 			})
 		)
 		.min(1, "Ao menos uma cor deve ser informada"),
