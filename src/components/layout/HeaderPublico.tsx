@@ -1,17 +1,24 @@
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { LogoMotogest } from "@/components/icons/logo_moto";
+interface HeaderProps {
+	mostrarBotaoEntrar?: boolean;
+}
 
-export function HeaderPublico(){
+export function HeaderPublico({ mostrarBotaoEntrar = true }: HeaderProps) {
 	return (
-		<nav className="w-full border-b-2 py-2">
-			<div className="container flex items-center justify-between">
-				<Link to="/">
-					<h1 className={"text-xl font-bold"}>MotoGest</h1>
+		<header className="bg-background sticky top-0 z-40 w-full border-b">
+			<div className="container flex h-16 items-center justify-between">
+				<Link to="/" className="flex items-center gap-2">
+					<LogoMotogest size={50} />
+					<h1>MotoGest</h1>
 				</Link>
-				<Button asChild>
-					<Link to="/login">Entrar</Link>
-				</Button>
+				{mostrarBotaoEntrar && (
+					<Link className={buttonVariants({ variant: "default" })} to="/login">
+						Entrar
+					</Link>
+				)}
 			</div>
-		</nav>
+		</header>
 	);
 }
