@@ -13,6 +13,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext.tsx";
 import { RedirecionamentoAuth } from "@/components/redirecionamentos/RedirecionamentoAuth";
 import { RedirecionamentoRotas } from "@/components/redirecionamentos/RedirecionamentoRotas";
+import { EmConstrucao } from "./pages/EmConstrucao";
 
 function App() {
 	// TODO: ajustar visual header
@@ -29,7 +30,15 @@ function App() {
 			),
 			errorElement: <Error404 />,
 		},
-		{ path: "login", element: <RedirecionamentoAuth Component={<Login />} /> },
+		{ path: "login", element: <RedirecionamentoAuth  Component={<Login />} /> },
+		{
+			path: "recuperar-senha",
+			element: <RedirecionamentoAuth  Component={<EmConstrucao />} />,
+		},
+		{
+			path: "cadastro",
+			element: <RedirecionamentoAuth Component={<EmConstrucao />} />,
+		},
 		{
 			path: "gestao",
 			element: <Outlet />,

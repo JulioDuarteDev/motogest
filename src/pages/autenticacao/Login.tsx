@@ -47,8 +47,8 @@ export function Login() {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			email: "",
-			senha: "",
+			email: "user@example.com",
+			senha: "123456",
 		},
 	});
 
@@ -65,7 +65,7 @@ export function Login() {
 	}
 
 	return (
-		<div className="flex h-screen items-center justify-center">
+		<div className="flex grow items-center justify-center">
 			<Card className="w-full max-w-sm m-4">
 				<CardHeader className="text-center">
 					<CardTitle className="text-2xl">Login</CardTitle>
