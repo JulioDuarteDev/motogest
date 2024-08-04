@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 
+import { UserNav } from "./UserNav";
 
 export function HeaderPrivado() {
   const menuItems = [
@@ -45,6 +46,7 @@ export function HeaderPrivado() {
           </NavigationMenu>
         </nav>
         <div className="flex items-center gap-4">
+          <UserNav/>
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="md:hidden">
