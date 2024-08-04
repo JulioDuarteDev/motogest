@@ -99,6 +99,10 @@
 	}
 }
 
+h1 {
+	@apply text-2xl font-bold;
+}
+
 h2 {
-  @apply text-2xl font-bold tracking-tight; 
+  @apply text-2xl font-semibold tracking-tight; 
 }
