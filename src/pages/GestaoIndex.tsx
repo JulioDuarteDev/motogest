@@ -3,11 +3,15 @@ import { GraficoDistribuicaoMotosModelo } from "@/components/graficos/GraficoDis
 import { GraficoDistribuicaoMotosQuilometragem } from "@/components/graficos/GraficoDistribuicaoMotosQuilometragem";
 import { MotosRecentes } from "@/components/dashboard/MotosRecentes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSignIcon, ArrowBigDownDash, ArrowBigUpDash } from "lucide-react";
+import {
+	DollarSignIcon,
+	ArrowBigDownDash,
+	ArrowBigUpDash,
+	Percent,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import useApi from "@/hooks/useApi";
 import { toast } from "@/components/ui/use-toast.ts";
-
 
 export function GestaoIndex() {
 	const { rpc } = useApi();
@@ -39,21 +43,42 @@ export function GestaoIndex() {
 		0
 	);
 
+	const totalEntradas = dados
+		.flatMap((item) => item.financiamento)
+		.reduce((acc, f) => acc + f.valor * 0.01, 0);
+
 	return (
 		<div className="container space-y-3">
 			<h2>Visualização geral</h2>
 
-			<div className="grid gap-3 md:grid-cols-3">
+			<div className="grid gap-3 md:grid-cols-4">
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Financiamentos em aberto
-						</CardTitle>
+						<CardTitle className="text-sm font-medium">Lucro mensal</CardTitle>
 						<DollarSignIcon className="size-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
 						<div className="text-xl font-bold">
-							{financiamentosPendentes.length}
+							{(totalEntradas - totalPendentes).toLocaleString("pt-BR", {
+								style: "currency",
+								currency: "BRL",
+							})}
+						</div>
+					</CardContent>
+				</Card>
+				<Card>
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+						<CardTitle className="text-sm font-medium">
+							Total de entradas
+						</CardTitle>
+						<ArrowBigUpDash className="size-5 text-muted-foreground" />
+					</CardHeader>
+					<CardContent>
+						<div className="text-xl font-bold">
+							{totalEntradas.toLocaleString("pt-BR", {
+								style: "currency",
+								currency: "BRL",
+							})}
 						</div>
 					</CardContent>
 				</Card>
@@ -73,15 +98,18 @@ export function GestaoIndex() {
 						</div>
 					</CardContent>
 				</Card>
+
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 						<CardTitle className="text-sm font-medium">
-							Total de entradas
+							Financiamentos em aberto
 						</CardTitle>
-						<ArrowBigUpDash className="size-5 text-muted-foreground" />
+						<Percent className="size-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-xl font-bold">+2350</div>
+						<div className="text-xl font-bold">
+							{financiamentosPendentes.length}
+						</div>
 					</CardContent>
 				</Card>
 			</div>
