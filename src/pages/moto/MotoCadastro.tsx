@@ -119,7 +119,7 @@ export function MotoCadastro() {
 			await rpc("moto_chain_update", form);
 			toast({
 				title: "Sucesso!",
-				description: `Moto de placa "${form.placa}" atualizada com sucesso!`,
+				description: `Moto de placa "${form._placa}" atualizada com sucesso!`,
 				variant: "success",
 			});
 
