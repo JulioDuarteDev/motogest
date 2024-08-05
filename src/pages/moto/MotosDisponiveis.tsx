@@ -1,94 +1,56 @@
 import { CardMotoDisponivel } from "@/components/CardMotoDisponivel";
-
-const imageMap = {
-	"NXR160 BROS ESDD": {
-		preta:
-			"https://www.honda.com.br/motos/sites/hda/files/2024-05/imagem-home-moto-honda-nxr-160-bros-esdd-azul-2024.webp",
-		vermelha:
-			"https://www.honda.com.br/motos/sites/hda/files/2024-05/imagem-home-moto-honda-nxr-160-bros-esdd-vermelho-2024.webp",
-		branca:
-			"https://www.honda.com.br/motos/sites/hda/files/2024-05/imagem-home-moto-honda-nxr-160-bros-esdd-branco-2024.webp",
-	},
-};
-
-function getImageUrl(modelo: string, cor: string) {
-  return imageMap[modelo]?.[cor];
-}
+import { useEffect, useState } from "react";
+import useApi from "@/hooks/useApi";
+import { toast } from "@/components/ui/use-toast.ts";
 
 export function MotosDisponiveis() {
-	const motos = [
-		{
-			modelo: "NXR160 BROS ESDD",
-			ano: 2024,
-			marca: "Honda",
-			cor: "preta",
-			quilometragem: 0,
-			cilindrada: 160,
-		},
-		{
-			modelo: "NXR160 BROS ESDD",
-			ano: 2024,
-			marca: "Honda",
-			cor: "branca",
-			quilometragem: 0,
-			cilindrada: 160,
-		},
-		{
-			modelo: "NXR160 BROS ESDD",
-			ano: 2024,
-			marca: "Honda",
-			cor: "vermelha",
-			quilometragem: 0,
-			cilindrada: 160,
-		},
-		{
-			modelo: "CB 500F",
-			ano: 2023,
-			marca: "Honda",
-			quilometragem: 30,
-			cilindrada: 160,
-			cor: "preta",
-		},
-		{
-			modelo: "CBR 1000RR",
-			ano: 2022,
-			marca: "Honda",
-			quilometragem: 2340,
-			cilindrada: 160,
-			cor: "preta",
-		},
-		{
-			modelo: "CRF 1100L",
-			ano: 2021,
-			marca: "Honda",
-			quilometragem: 534,
-			cilindrada: 160,
-			cor: "preta",
-		},
-	];
+	const { rpc } = useApi();
+	const [dados, setDados] = useState([]);
+
+	async function getDadosMotos() {
+		try {
+			const data = await rpc("get_moto_details");
+
+			const agrupadosPorModelo = data.reduce((acc, moto) => {
+				const { modelo, disponibilidade } = moto;
+				if (disponibilidade.nome === "Disponível") {
+					if (!acc[modelo.nome]) {
+						acc[modelo.nome] = { ...modelo, quantidade: 0 };
+					}
+					acc[modelo.nome].quantidade++;
+				}
+				return acc;
+			}, {});
+
+			const motosDisponiveisArray = Object.values(agrupadosPorModelo);
+			setDados(motosDisponiveisArray);
+		} catch (error) {
+			toast({
+				title: "Ops!",
+				description: error.message,
+				variant: "destructive",
+			});
+		}
+	}
+
+	useEffect(() => {
+		getDadosMotos();
+	}, []);
 
 	return (
-		<div className="p-4 flex flex-col gap-2">
-			<header className="flex flex-col center gap-1 ">
-				<h2>Motos disponíveis</h2>
-				<p className="text-slate-500">Exibindo {motos.length} motos disponíveis</p>
-			</header>
+		<div className="container space-y-4">
+			<section className="flex flex-col gap-1 ">
+				<h2>Modelos disponíveis</h2>
+				<p className="text-muted-foreground">
+					Exibindo {dados.length} modelos de motos disponíveis
+				</p>
+			</section>
 
-			<div className="flex gap-5 flex-wrap center">
-				{motos.map((moto, index) => (
-					<CardMotoDisponivel
-						key={index}
-						modelo={moto.modelo}
-						ano={moto.ano}
-						url_imagem={getImageUrl(moto.modelo, moto.cor)}
-						cor={moto.cor}
-						marca={moto.marca}
-						quilometragem={moto.quilometragem}
-						cilindrada={moto.cilindrada}
-					/>
+			<ul className="grid sm:grid-cols-2 gap-4 lg:grid-cols-4 md:grid-cols-3">
+				{dados.map((moto, index) => (
+					<CardMotoDisponivel key={index} moto={moto} />
 				))}
-			</div>
-			<ul></ul>
+			</ul>
 		</div>
 	);
 }
