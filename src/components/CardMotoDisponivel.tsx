@@ -8,7 +8,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button.tsx";
+import { buttonVariants } from "@/components/ui/button.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import {
@@ -18,8 +18,12 @@ import {
 	CarouselNext,
 	CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Link } from "react-router-dom";
 
 export function CardMotoDisponivel({ moto }) {
+	const textoMensagem = `Olá, gostaria de saber mais sobre a moto "${moto.nome}"`;
+	const numeroTelefone = "123456789";
+
 	return (
 		<Dialog>
 			<DialogTrigger>
@@ -75,10 +79,17 @@ export function CardMotoDisponivel({ moto }) {
 					</div>
 				</dl>
 				<DialogFooter className="justify-center">
-					<Button className="w-full">
+					<Link
+						target="_blank"
+						rel="noopener noreferrer"
+						to={encodeURI(
+							`https://api.whatsapp.com/send?phone=${numeroTelefone}&text=${textoMensagem}`
+						)}
+						className={buttonVariants() + " w-full flex gap-2"}
+					>
 						<FontAwesomeIcon size="xl" icon={faWhatsapp} className="pr-2" />{" "}
 						Entrar em contato
-					</Button>
+					</Link>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
