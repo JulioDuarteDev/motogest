@@ -1,21 +1,44 @@
 import { GraficoMotosDisponiveis } from "@/components/graficos/GraficoMotosDisponiveis";
 import { Overview } from "@/components/graficos/Overview";
-import { LocacoesRecentes } from "@/components/LocacoesRecentes";
+import { MotosRecentes } from "@/components/dashboard/MotosRecentes";
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
 import { DollarSignIcon, ArrowBigDownDash, ArrowBigUpDash } from "lucide-react";
+import { useEffect, useState } from "react";
+import useApi from "@/hooks/useApi";
+import { toast } from "@/components/ui/use-toast.ts";
+
 
 export function GestaoIndex() {
+	const { rpc } = useApi();
+	const [dados, setDados] = useState([]);
+
+	async function getDadosMotos() {
+		try {
+			const data = await rpc("get_moto_details");
+			setDados(data);
+			
+		} catch (error) {
+			toast({
+				title: "Ops!",
+				description: error.message,
+				variant: "destructive",
+			});
+		}
+	}
+
+	useEffect(() => {
+		getDadosMotos();
+	}, []);
+
 	return (
-		<div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
-			<div className="flex items-center justify-between space-y-2">
-				<h2>Visualização geral</h2>
-			</div>
+		<div className="container space-y-4">
+			<h2>Visualização geral</h2>
+
 			<div className="grid gap-4 md:grid-cols-3">
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -58,34 +81,9 @@ export function GestaoIndex() {
 					</CardContent>
 				</Card>
 			</div>
-			<div className="grid gap-4 md:grid-cols-3">
-				<Card className="flex flex-col">
-					<CardHeader className="items-center pb-0">
-						<CardTitle>Motos</CardTitle>
-						<CardDescription>Situação atual</CardDescription>
-					</CardHeader>
-					<CardContent className="flex-1 pb-0">
-						<GraficoMotosDisponiveis />
-					</CardContent>
-				</Card>
-				<Card className="flex flex-col">
-					<CardHeader>
-						<CardTitle>Últimas despesas</CardTitle>
-						<CardDescription>26 despesas cadastradas esse mês</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<LocacoesRecentes />
-					</CardContent>
-				</Card>
-				<Card className="flex flex-col">
-					<CardHeader>
-						<CardTitle>Últimas locações</CardTitle>
-						<CardDescription>26 locações realizadas esse mês</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<LocacoesRecentes />
-					</CardContent>
-				</Card>
+			<div className="grid gap-4 md:grid-cols-2">
+				<GraficoMotosDisponiveis dados={dados} />
+				<MotosRecentes dados={dados} />
 			</div>
 			<div className="grid gap-4 md:grid-cols-2">
 				<Card>
