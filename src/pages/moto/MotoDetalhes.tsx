@@ -24,16 +24,9 @@ export function MotoDetalhes() {
 	const { rpc } = useApi();
 	const navigate = useNavigate();
 	const { deleteById } = useApi();
-	const { getVarianteBadge } = utils();
+	const { getVarianteBadge, formataValor, formataData } = utils();
 
-	function formataData(data: string) {
-		const date = new Date(data);
-
-		return date.toLocaleDateString("pt-BR", {
-			hour: "2-digit",
-			minute: "2-digit",
-		});
-	}
+	
 
 	async function handleExcluirMoto() {
 		try {
@@ -155,10 +148,7 @@ export function MotoDetalhes() {
 								<div>
 									<dt className="text-muted-foreground">Valor</dt>
 									<dd>
-										{dados.financiamento?.valor?.toLocaleString("pt-BR", {
-											style: "currency",
-											currency: "BRL",
-										})}
+										{formataValor(dados.financiamento?.valor)}
 									</dd>
 								</div>
 								<div>
@@ -174,13 +164,7 @@ export function MotoDetalhes() {
 												Valor da parcela
 											</dt>
 											<dd>
-												{dados.financiamento?.valor_parcela?.toLocaleString(
-													"pt-BR",
-													{
-														style: "currency",
-														currency: "BRL",
-													}
-												)}
+												{formataValor(dados.financiamento?.valor_parcela)}
 											</dd>
 										</div>
 										<div>

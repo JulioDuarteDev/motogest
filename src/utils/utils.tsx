@@ -14,7 +14,24 @@ export default function utils() {
 		}
 	}
 
+	function formataValor(numero: number) {
+		return numero?.toLocaleString("pt-BR", {
+			style: "currency",
+			currency: "BRL",
+		});
+	}
+	function formataData(data: string) {
+		const date = new Date(data);
+
+		return date.toLocaleDateString("pt-BR", {
+			hour: "2-digit",
+			minute: "2-digit",
+		});
+  }
+  
 	return {
 		getVarianteBadge,
+		formataValor,
+		formataData,
 	};
 }
