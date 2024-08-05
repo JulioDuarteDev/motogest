@@ -52,6 +52,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import utils from "@/utils/utils";
 
 interface TabelaListagemMotosProps {
 	data: MotosProps[];
@@ -60,24 +61,13 @@ interface TabelaListagemMotosProps {
 export function TabelaListagemMotos({ data }: TabelaListagemMotosProps) {
 	const navigate = useNavigate();
 	const { deleteById } = useApi();
+	const { getVarianteBadge } = utils();
 
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [itemExcluir, setItemExcluir] = useState<MotosProps>({} as MotosProps);
 	const [openAlert, setOpenAlert] = useState(false);
 
-	function getVarianteBadge(disponibilidade: MotosProps["disponibilidade"]) {
-		switch (disponibilidade) {
-			case "Disponível":
-				return "success";
-			case "Em manutenção":
-				return "destructive";
-			case "Locada":
-				return "neutral";
-			default:
-				return undefined;
-		}
-	}
 	async function handleExcluirMoto(moto: MotosProps) {
 		try {
 			await deleteById("motos", moto.id);
