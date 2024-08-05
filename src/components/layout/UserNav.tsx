@@ -19,8 +19,6 @@ export function UserNav() {
 	const { user } = useContext(AuthContext);
 	const { logout } = useAuthUser();
 
-	console.log(user);
-
 	const userData = user?.user_metadata;
 
 	async function handleLogout() {

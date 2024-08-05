@@ -20,8 +20,6 @@ export function GraficoDistribuicaoMotosQuilometragem({ dados }) {
 		},
 	} satisfies ChartConfig;
 
-	console.log(dados)
-
 	return (
 		<Card>
 			<CardHeader>

@@ -19,7 +19,7 @@ export function GestaoIndex() {
 
 	async function getDadosMotos() {
 		try {
-			const data = await rpc("get_moto_details");
+			const data = await rpc("get_moto_chain_details");
 			setDados(data);
 		} catch (error) {
 			toast({

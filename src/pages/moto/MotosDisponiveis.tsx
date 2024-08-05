@@ -9,7 +9,7 @@ export function MotosDisponiveis() {
 
 	async function getDadosMotos() {
 		try {
-			const data = await rpc("get_moto_details");
+			const data = await rpc("get_moto_chain_details");
 
 			const agrupadosPorModelo = data.reduce((acc, moto) => {
 				const { modelo, disponibilidade } = moto;
