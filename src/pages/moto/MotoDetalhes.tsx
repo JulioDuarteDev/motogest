@@ -14,6 +14,8 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import useApi from "@/hooks/useApi";
+import { Badge } from "@/components/ui/badge";
+import utils from "@/utils/utils";
 
 export function MotoDetalhes() {
 	const [dados, setDados] = useState({});
@@ -22,6 +24,7 @@ export function MotoDetalhes() {
 	const { rpc } = useApi();
 	const navigate = useNavigate();
 	const { deleteById } = useApi();
+	const { getVarianteBadge } = utils();
 
 	function formataData(data: string) {
 		const date = new Date(data);
@@ -73,10 +76,15 @@ export function MotoDetalhes() {
 				<div className="px-4 py-8">
 					<div className="flex justify-between gap-2 flex-wrap">
 						<div>
-							<h2>
-								{dados.modelo?.nome} -{" "}
-								<span className="uppercase">{dados.placa}</span>
-							</h2>
+							<div className="flex gap-4">
+								<h2>
+									{dados.modelo?.nome} -{" "}
+									<span className="uppercase">{dados.placa}</span>
+								</h2>
+								<Badge variant={getVarianteBadge(dados.disponibilidade?.nome)}>
+									{dados.disponibilidade?.nome}
+								</Badge>
+							</div>
 							<p className="text-muted-foreground">
 								Criado em {formataData(dados.created_at)}
 							</p>
